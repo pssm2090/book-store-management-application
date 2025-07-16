@@ -1,0 +1,46 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# This makes sure all text files (Java, TS, HTML, etc.) use LF internally
+# Git will automatically convert LF <-> CRLF depending on your OS when checking out
+# Why? Prevents messy CRLF warnings like you saw earlier.
+
+# Mark Windows batch scripts to always use CRLF
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Because these are Windows-specific scripts (like mvnw.cmd),
+# they MUST have CRLF, otherwise Windows might break.
+
+# Mark all source code as text
+*.java text
+*.ts text
+*.html text
+*.css text
+*.scss text
+*.json text
+*.yml text
+*.xml text
+*.md text
+
+# This explicitly says these are normal text files.
+# Git will normalize them to LF internally.
+
+# Mark binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+
+# These are binary files—Git should NOT try to diff or normalize line endings.
+
+# Special GitHub diff settings (optional)
+*.lock -diff
+*.min.js -diff
+
+# Package-lock.json or minified JS are machine-generated,
+# so no need to show diffs in PRs.
