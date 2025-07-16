@@ -1,0 +1,31 @@
+# OS-specific junk files
+Thumbs.db         # Windows thumbnail cache
+ehthumbs.db       # Extra Windows Explorer thumbnail cache
+desktop.ini       # Windows folder customization file
+.DS_Store         # macOS metadata 
+
+# Backend (Spring Boot)
+backend/bookstore-backend/target/    # Maven build output
+backend/bookstore-backend/.classpath # Eclipse classpath metadata
+backend/bookstore-backend/.project   # Eclipse project metadata
+backend/bookstore-backend/.settings/ # Eclipse settings folder
+backend/bookstore-backend/application-secret.properties  # DB passwords & secrets
+
+# Frontend (Angular)
+frontend/bookstore-frontend/node_modules/    # Node dependencies
+frontend/bookstore-frontend/dist/            # Angular build output
+frontend/bookstore-frontend/.angular/cache   # Angular cache
+
+# IDE-specific metadata
+.vscode/    # VS Code workspace settings
+.idea/      # IntelliJ IDEA metadata
+*.iml       # IntelliJ module files
+
+# Docs (ignore full folder)
+docs/       # Ignore docs folder completely (local-only)
+!docs/*.pdf
+
+# Database schema (optional)
+database/bookstore_schema.sql 
+
+
