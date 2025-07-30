@@ -9,7 +9,7 @@ backend/bookstore-backend/target/    # Maven build output
 backend/bookstore-backend/.classpath # Eclipse classpath metadata
 backend/bookstore-backend/.project   # Eclipse project metadata
 backend/bookstore-backend/.settings/ # Eclipse settings folder
-backend/bookstore-backend/application-secret.properties  # DB passwords & secrets
+backend/bookstore-backend/src/main/resources/application-secret.properties # DB passwords & secrets
 
 # Frontend (Angular)
 frontend/bookstore-frontend/node_modules/    # Node dependencies

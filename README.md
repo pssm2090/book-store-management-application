@@ -28,6 +28,7 @@ A full-stack web-based Book Store Management System that digitizes and simplifie
 | Tools      | Git, GitHub, Postman, MySQL Workbench, Eclipse, VS Code |
 | Reporting  | JasperReports / Apache POI                              |
 
+
 ## Folder Structure
 
 BookStoreManagementApplication/
@@ -38,18 +39,6 @@ BookStoreManagementApplication/
 ├── README.md
 └── .gitignore
 
-## Sprint 0 – Progress
-
-- Folder structure created
-- Toolchain verified
-- Backend setup done
-- Database connected
-- Frontend blank project created
-- Git remotes set
-- .gitignore finalized
-- README.md written
-- ER Diagram
-- Sprint Plan updated
 
 ## How to Run Locally
 
@@ -70,29 +59,39 @@ ng serve
 App will be available at: http://localhost:4200
 
 
-## Upcoming (Sprint 1)
 
-- Implement Book entity with JPA (title, author, ISBN, price, stock, etc.)
-- Implement Category entity and connect it with Book
-- Create BookRepository & CategoryRepository for CRUD operations
-- Create Admin APIs to:
-- Add / Edit / Delete books
-- Search & filter books by title, ISBN, category
-- Handle low-stock alerts
-- Create bulk upload support (CSV/Excel import for books)
-- Implement stock update logic after order placement
-- Add InventoryLog entity to track changes in stock
-- Write unit tests for repository & service layer
-- Update README.md with progress after Sprint 1
+## Work Done So Far (Till Now)
 
+## Sprint 0 – Progress
+
+- Folder structure created
+- Toolchain verified
+- Backend setup done
+- Database connected
+- Frontend blank project created
+- Git remotes set
+- .gitignore finalized
+- README.md written
+- ER Diagram
+- Sprint Plan updated
+
+## Sprint 1 – Progress
+
+- `Book` and `Category` Entity create
+- Controller, Service, Repository layers create
+- Features implement
+  - Add / Edit / Delete / View books and categories
+  - Filter/search books by title, ISBN, category 
+  - Low stock alerts
+  - Import books in bulk using CSV file
 
 ## Team
 
 - **Sudhanshu Rout** (Team Lead)
 - **Arya Bhardwaj Mishra**
-- **Pranjal Sahu** - Module 1
+- **Pranjal Sahu**
 - **Nandani Singh**
-- **Priti Mondal** - Git Handling & Module 4
+- **Priti Mondal**
 
 ---
 
