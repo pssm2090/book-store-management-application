@@ -1,5 +1,6 @@
 package com.bookstore.entity;
 
+import jakarta.validation.constraints.*;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,6 +11,9 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long categoryId;
 
+
+    @NotBlank(message = "Category name is required")
+    @Size(max = 100, message = "Category name can’t be more than 100 characters")
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 

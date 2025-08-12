@@ -1,0 +1,21 @@
+book_id,title,author,category,price,stock_quantity
+1,Book 1,Author 1,History,69.98,98
+2,Book 2,Author 2,History,94.15,12
+3,Book 3,Author 3,History,67.65,92
+4,Book 4,Author 4,Fiction,55.79,38
+5,Book 5,Author 5,Science,33.44,45
+6,Book 6,Author 6,Non-Fiction,96.65,28
+7,Book 7,Author 7,Fantasy,90.29,45
+8,Book 8,Author 8,Fantasy,43.03,92
+9,Book 9,Author 9,Non-Fiction,27.85,12
+10,Book 10,Author 10,History,49.28,94
+11,Book 11,Author 11,Fantasy,92.61,35
+12,Book 12,Author 12,Fiction,57.31,70
+13,Book 13,Author 13,Non-Fiction,22.39,15
+14,Book 14,Author 14,Non-Fiction,58.18,68
+15,Book 15,Author 15,Science,43.07,23
+16,Book 16,Author 16,Fiction,83.36,11
+17,Book 17,Author 17,Fantasy,90.94,25
+18,Book 18,Author 18,Non-Fiction,69.22,94
+19,Book 19,Author 19,Fantasy,91.66,32
+20,Book 20,Author 20,Fiction,43.4,11
