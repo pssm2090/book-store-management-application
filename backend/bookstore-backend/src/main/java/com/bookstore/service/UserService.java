@@ -1,7 +1,7 @@
 package com.bookstore.service;
 
-import com.bookstore.dto.UserRegisterDTO;
-import com.bookstore.dto.UserUpdateDTO;
+import com.bookstore.dto.auth.UserRegisterDTO;
+import com.bookstore.dto.auth.UserUpdateDTO;
 import com.bookstore.entity.Role;
 import com.bookstore.entity.User;
 import com.bookstore.exception.EmailAlreadyExistsException;
@@ -9,6 +9,8 @@ import com.bookstore.exception.InvalidCredentialsException;
 import com.bookstore.exception.UserNotFoundException;
 import com.bookstore.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -78,4 +80,12 @@ public class UserService {
     public long getUserStats() {
         return userRepository.count();
     }
+    
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // assuming email is username
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
 }

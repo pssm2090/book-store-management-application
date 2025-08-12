@@ -1,10 +1,10 @@
 package com.bookstore.controller;
 
-import com.bookstore.dto.LoginRequest;
-import com.bookstore.dto.LoginResponse;
-import com.bookstore.dto.RefreshTokenRequest;
-import com.bookstore.dto.UserRegisterDTO;
-import com.bookstore.dto.UserUpdateDTO;
+import com.bookstore.dto.auth.LoginRequest;
+import com.bookstore.dto.auth.LoginResponse;
+import com.bookstore.dto.auth.RefreshTokenRequest;
+import com.bookstore.dto.auth.UserRegisterDTO;
+import com.bookstore.dto.auth.UserUpdateDTO;
 import com.bookstore.entity.User;
 import com.bookstore.service.UserService;
 import com.bookstore.security.JwtService;
