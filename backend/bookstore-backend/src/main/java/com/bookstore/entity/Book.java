@@ -1,10 +1,11 @@
 package com.bookstore.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity                    
@@ -15,29 +16,43 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long bookId;   
 
+    @NotBlank(message = "Book title is required")
+    @Size(max = 255, message = "Title can’t be more than 255 characters")
     @Column(nullable = false, length = 255)
     private String title; 
 
+    @NotBlank(message = "Author is required")
+    @Size(max = 255, message = "Author name can’t be more than 255 characters")
     @Column(nullable = false, length = 255)
-    private String author; // 
+    private String author; 
 
+    @Size(max = 1000, message = "Description can’t be more than 1000 characters")
     @Column(length = 1000)
-    private String description; 
+    private String description;
 
+    @NotNull(message = "Price is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
+    @Digits(integer = 8, fraction = 2, message = "Price must be a valid amount")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;   
 
+    @NotBlank(message = "ISBN is required")
+    @Size(min = 10, max = 20, message = "ISBN must be between 10 to 20 characters")
     @Column(unique = true, length = 20)
     private String isbn;    
 
+    @PastOrPresent(message = "Published date cannot be in the future")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate publishedDate;  
 
+    @NotNull(message = "Stock quantity is required")
+    @Min(value = 0, message = "Stock quantity cannot be negative")
     @Column(nullable = false)
     private Integer stockQuantity;   
 
+    @NotNull(message = "Book category is required")
     @ManyToOne(fetch = FetchType.EAGER)  
-    @JoinColumn(name = "categoryId")  
+    @JoinColumn(name = "categoryId") 
     private Category category;
 
 //    @Column(length = 500)
@@ -51,16 +66,24 @@ public class Book {
     // ========= Constructors ========= //
     public Book() {}
 
-    public Book(String title, String author, BigDecimal price, String isbn, 
-                LocalDate publishedDate) {
-        this.title = title;
-        this.author = author;
-        this.price = price;
-        this.isbn = isbn;
-        this.publishedDate = publishedDate;
-    }
 
-    // ========= Getters & Setters ========= //
+
+//    public Book(Long bookId, String title, String author, String description, BigDecimal price, String isbn,
+//			LocalDate publishedDate, Integer stockQuantity, Category category) {
+//		this.bookId = bookId;
+//		this.title = title;
+//		this.author = author;
+//		this.description = description;
+//		this.price = price;
+//		this.isbn = isbn;
+//		this.publishedDate = publishedDate;
+//		this.stockQuantity = stockQuantity;
+//		this.category = category;
+//	}
+
+
+
+	// ========= Getters & Setters ========= //
 
     public Long getBookId() {
         return bookId;
@@ -146,16 +169,8 @@ public class Book {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     // ========= Lifecycle Callbacks ========= //
@@ -169,5 +184,19 @@ public class Book {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+    
+    // ========= To String ========= //
+
+    
+    @Override
+    public String toString() {
+        return "Book{" +
+               "bookId=" + bookId +
+               ", title='" + title + '\'' +
+               ", author='" + author + '\'' +
+               ", price=" + price +
+               ", isbn='" + isbn + '\'' +
+               '}';
     }
 }
