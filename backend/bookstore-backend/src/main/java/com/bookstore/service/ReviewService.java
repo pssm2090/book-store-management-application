@@ -26,7 +26,6 @@ public class ReviewService {
     @Autowired
     private UserRepository userRepository;
 
-    // ✅ Add review using logged-in user email
     public Review addReview(Review review, String userEmail) {
         Long bookId = review.getBook().getBookId(); // extract bookId from embedded book
 

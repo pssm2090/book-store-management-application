@@ -21,7 +21,7 @@ public class CategoryController {
 
 	
 	@PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<Category> addCategory(@Valid @RequestBody Category category) {
         Category saved = categoryService.addCategory(category);
         return ResponseEntity.ok(saved);
@@ -29,7 +29,7 @@ public class CategoryController {
 
     
     
-    @GetMapping
+    @GetMapping("/get-all")
     public ResponseEntity<List<Category>> getAllCategories() {
     	List<Category> categories = categoryService.getAllCategories();
         return ResponseEntity.ok(categories);
@@ -48,7 +48,7 @@ public class CategoryController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{categoryId}")
+    @PutMapping("/update/{categoryId}")
     public ResponseEntity<Category> updateCategory(@PathVariable Long categoryId, @Valid @RequestBody Category updatedCategory) {
     		Category savedCategory = categoryService.updateCategory(categoryId, updatedCategory.getName());
     		return ResponseEntity.ok(savedCategory);
@@ -56,7 +56,7 @@ public class CategoryController {
     }
     
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{categoryId}")
+    @DeleteMapping("/delete/{categoryId}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId) {
     		categoryService.deleteCategory(categoryId);
             return ResponseEntity.ok("Category deleted successfully");

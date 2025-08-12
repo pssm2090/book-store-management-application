@@ -2,9 +2,12 @@ package com.bookstore.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +19,13 @@ public class JwtService {
     private static final long ACCESS_TOKEN_VALIDITY = 1000 * 60 * 15; // 15 minutes
     private static final long REFRESH_TOKEN_VALIDITY = 1000 * 60 * 60 * 24 * 7; // 7 days
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${jwt.secret}")
+    private String base64Secret;
 
+    private Key getSigningKey() {
+        byte[] keyBytes = Base64.getDecoder().decode(base64Secret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
     public String generateAccessToken(String email, String role, String name) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
@@ -35,7 +43,7 @@ public class JwtService {
                 .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + validity))
-                .signWith(key)
+                .signWith(getSigningKey())
                 .compact();
     }
 
@@ -58,7 +66,7 @@ public class JwtService {
     
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

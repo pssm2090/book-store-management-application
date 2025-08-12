@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,40 +18,26 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    /**
-     * Add a new review for a book.
-     * The Review JSON must include a nested Book object with only bookId set.
-     */
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<Review> addReview(@Valid @RequestBody Review review,
-                                            @AuthenticationPrincipal User currentUser) {
+    		@AuthenticationPrincipal UserDetails currentUser) {
         Review savedReview = reviewService.addReview(review, currentUser.getUsername());
         return ResponseEntity.ok(savedReview);
     }
 
-    /**
-     * Get all reviews for a specific book.
-     */
     @GetMapping("/book/{bookId}")
     public ResponseEntity<List<Review>> getReviewsByBook(@PathVariable Long bookId) {
         return ResponseEntity.ok(reviewService.getReviewsByBook(bookId));
     }
 
-    /**
-     * Get all reviews submitted by a specific user.
-     */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(reviewService.getReviewsByUser(userId));
     }
 
-    /**
-     * Delete a review by its ID.
-     * Only the review author (logged-in user) is allowed to delete it.
-     */
-    @DeleteMapping("/{reviewId}")
+    @DeleteMapping("/delete/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable Long reviewId,
-                                               @AuthenticationPrincipal User currentUser) {
+    		@AuthenticationPrincipal UserDetails currentUser) {
         reviewService.deleteReview(reviewId, currentUser.getUsername());
         return ResponseEntity.ok("Review deleted successfully");
     }
