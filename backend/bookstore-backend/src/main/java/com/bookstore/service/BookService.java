@@ -1,12 +1,19 @@
 package com.bookstore.service;
 
+import com.bookstore.dto.book.BookRequestDTO;
+import com.bookstore.dto.book.BookResponseDTO;
 import com.bookstore.entity.Book;
 import com.bookstore.entity.Category;
+import com.bookstore.entity.OrderItem;
 import com.bookstore.repository.BookRepository;
 import com.bookstore.repository.CategoryRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.bookstore.exception.BookNotFoundException;
 import com.bookstore.exception.DuplicateISBNException;
 import com.bookstore.exception.FileParseException;
+import com.bookstore.exception.InsufficientStockException;
 import com.bookstore.exception.InvalidCategoryException;
 
 import java.io.BufferedReader;
@@ -24,166 +31,221 @@ import org.apache.commons.csv.CSVRecord;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class BookService {
 
-	@Autowired
+    @Autowired
     private BookRepository bookRepository;
-	@Autowired
-	private CategoryRepository categoryRepository;
-	
-	public Book addBook(Book book) {
-		if (bookRepository.findByIsbn(book.getIsbn()).isPresent()) {
-            throw new DuplicateISBNException("A book with ISBN '" + book.getIsbn() + "' already exists.");
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    public BookResponseDTO addBook(BookRequestDTO bookDto) {
+        if (bookRepository.findByIsbn(bookDto.getIsbn()).isPresent()) {
+            throw new DuplicateISBNException("A book with ISBN '" + bookDto.getIsbn() + "' already exists.");
         }
-		
-		if(book.getCategory() != null && book.getCategory().getName() != null) {
-			String categoryName = book.getCategory().getName();
-			
-			Category category = categoryRepository.findByNameIgnoreCase(categoryName)
-					.orElseGet(() -> categoryRepository.save(new Category(categoryName)));
-			book.setCategory(category);
-		} else {
-			throw new InvalidCategoryException("Category name must be provided.");
-		}
-        return bookRepository.save(book);
+
+        Category category = categoryRepository.findByNameIgnoreCase(bookDto.getCategory().getName())
+                .orElseGet(() -> categoryRepository.save(new Category(bookDto.getCategory().getName())));
+
+        Book book = new Book(
+                bookDto.getTitle(),
+                bookDto.getAuthor(),
+                bookDto.getDescription(),
+                bookDto.getPrice(),
+                bookDto.getIsbn(),
+                bookDto.getPublishedDate(),
+                bookDto.getStockQuantity(),
+                category,
+                bookDto.getCoverImageUrl()
+        );
+
+        return mapToResponse(bookRepository.save(book));
     }
-	
-	public void bulkUpload(MultipartFile file) {
-	    try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
-	         CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build())) {
 
-	        List<Book> books = new ArrayList<>();
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    		List<String> skippedIsbns = new ArrayList<>();
+    public void bulkUpload(MultipartFile file) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).build())) {
 
-	        for (CSVRecord record : csvParser) {
-	        	try {
-	        		Book book = new Book();
-	        		
-	        		book.setTitle(record.get("title").trim());
-	        		book.setAuthor(record.get("author").trim());
-	        		book.setDescription(record.get("description").trim());
-	        		book.setPrice(new BigDecimal(record.get("price").trim()));
-	        		book.setIsbn(record.get("isbn").trim());
-	        		book.setPublishedDate(LocalDate.parse(record.get("publishedDate").trim(), formatter));
-	        		book.setStockQuantity(Integer.parseInt(record.get("stockQuantity").trim()));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            List<String> skippedIsbns = new ArrayList<>();
+            List<String> errorRows = new ArrayList<>();
 
-	        		String categoryName = record.get("categoryName").trim();
-	        		if (categoryName.isEmpty()) {
+            for (CSVRecord record : csvParser) {
+                try {
+                    String isbn = record.get("isbn").trim();
+
+                    if (bookRepository.findByIsbn(isbn).isPresent()) {
+                        System.err.println("Duplicate ISBN in row: " + record.getRecordNumber() + " -> " + isbn);
+                        skippedIsbns.add(isbn);
+                        continue;
+                    }
+
+                    BookRequestDTO dto = new BookRequestDTO();
+                    dto.setTitle(record.get("title").trim());
+                    dto.setAuthor(record.get("author").trim());
+                    dto.setDescription(record.get("description").trim());
+                    dto.setPrice(new BigDecimal(record.get("price").trim()));
+                    dto.setIsbn(isbn);
+                    dto.setPublishedDate(LocalDate.parse(record.get("publishedDate").trim(), formatter));
+                    dto.setStockQuantity(Integer.parseInt(record.get("stockQuantity").trim()));
+
+                    String categoryName = record.get("categoryName").trim();
+                    if (categoryName.isEmpty()) {
                         throw new InvalidCategoryException("Category name is missing in CSV row: " + record.getRecordNumber());
                     }
-	        		Category category = categoryRepository.findByNameIgnoreCase(categoryName)
-	                                 .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
-	        		book.setCategory(category);
 
+                    Category category = categoryRepository.findByNameIgnoreCase(categoryName)
+                            .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
-//	            	book.setCoverImageUrl(record.get("coverImageUrl"));
-	        		
-	        		if (bookRepository.findByIsbn(book.getIsbn()).isPresent()) {
-	        		    System.err.println("Duplicate ISBN in row: " + record.getRecordNumber() + " -> " + book.getIsbn());
-	        		    skippedIsbns.add(book.getIsbn());
-	        		    continue;
-	        		}
-	        		
-	        		
-	        		books.add(book);
-	        	} catch (Exception ex) {
-	                System.err.println("Error parsing row: " + record.getRecordNumber() + " -> " + ex.getMessage());
-	            }
-	        }
+                    dto.setCategory(new Category(category.getName()));
 
-	        bookRepository.saveAll(books);
-	        System.out.println("Successfully saved " + books.size() + " books.");
+                    dto.setCoverImageUrl(record.get("coverImageUrl").trim());
 
-	        if (!skippedIsbns.isEmpty()) {
-	            System.out.println("Skipped duplicate ISBNs: " + String.join(", ", skippedIsbns));
-	        }
-	        
-	    } catch (IOException e) {
-	        throw new FileParseException("Failed to parse CSV file.", e);
-	    }
-	}
+                    addBook(dto);
 
-	
-	public Book updateBook(Long bookId, Book updatedBook) {
-		Book existingBook = bookRepository.findById(bookId)
-                .orElseThrow(() -> new BookNotFoundException("Book not found with id: " + bookId));
+                } catch (Exception ex) {
+                    System.err.println("Error parsing row: " + record.getRecordNumber() + " -> " + ex.getMessage());
+                    errorRows.add("Row " + record.getRecordNumber() + ": " + ex.getMessage());
+                }
+            }
 
-		if (!existingBook.getIsbn().equals(updatedBook.getIsbn())) {
-		    bookRepository.findByIsbn(updatedBook.getIsbn()).ifPresent(existing -> {
-		        throw new DuplicateISBNException("A book with ISBN '" + updatedBook.getIsbn() + "' already exists.");
-		    });
-		}
+            System.out.println("Bulk upload completed. Skipped ISBNs: " + skippedIsbns);
+            if (!errorRows.isEmpty()) {
+                System.out.println("Errors in rows:\n" + String.join("\n", errorRows));
+            }
 
-        existingBook.setTitle(updatedBook.getTitle());
-        existingBook.setAuthor(updatedBook.getAuthor());
-        existingBook.setDescription(updatedBook.getDescription());
-        existingBook.setPrice(updatedBook.getPrice());
-        existingBook.setIsbn(updatedBook.getIsbn());
-        existingBook.setPublishedDate(updatedBook.getPublishedDate());
-        existingBook.setStockQuantity(updatedBook.getStockQuantity());
-        existingBook.setCategory(updatedBook.getCategory());
-
-        return bookRepository.save(existingBook);
+        } catch (IOException e) {
+            throw new FileParseException("Failed to parse CSV file.", e);
+        }
     }
 
-	public void deleteBook(Long bookId) {
-		if (!bookRepository.existsById(bookId)) {
+    public BookResponseDTO updateBook(Long bookId, BookRequestDTO bookDto) {
+        Book existingBook = bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException("Book not found with id: " + bookId));
+
+        if (!existingBook.getIsbn().equals(bookDto.getIsbn())) {
+            bookRepository.findByIsbn(bookDto.getIsbn()).ifPresent(existing -> {
+                throw new DuplicateISBNException("A book with ISBN '" + bookDto.getIsbn() + "' already exists.");
+            });
+        }
+
+        Category category = categoryRepository.findByNameIgnoreCase(bookDto.getCategory().getName())
+                .orElseGet(() -> categoryRepository.save(new Category(bookDto.getCategory().getName())));
+
+        existingBook.setTitle(bookDto.getTitle());
+        existingBook.setAuthor(bookDto.getAuthor());
+        existingBook.setDescription(bookDto.getDescription());
+        existingBook.setPrice(bookDto.getPrice());
+        existingBook.setIsbn(bookDto.getIsbn());
+        existingBook.setPublishedDate(bookDto.getPublishedDate());
+        existingBook.setStockQuantity(bookDto.getStockQuantity());
+        existingBook.setCategory(category);
+        existingBook.setCoverImageUrl(bookDto.getCoverImageUrl());
+
+        return mapToResponse(bookRepository.save(existingBook));
+    }
+
+    public void deleteBook(Long bookId) {
+        if (!bookRepository.existsById(bookId)) {
             throw new BookNotFoundException("Book not found with id: " + bookId);
         }
         bookRepository.deleteById(bookId);
     }
 
-	public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<BookResponseDTO> getAllBooks() {
+        return bookRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
-    
-	public Book getBookById(Long bookId) {
-		return bookRepository.findById(bookId)
+
+    public BookResponseDTO getBookById(Long bookId) {
+        Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new BookNotFoundException("Book not found with id: " + bookId));
+        return mapToResponse(book);
     }
 
-	public Book getBookByIsbn(String isbn) {
-		return bookRepository.findByIsbn(isbn)
+    public BookResponseDTO getBookByIsbn(String isbn) {
+        Book book = bookRepository.findByIsbn(isbn)
                 .orElseThrow(() -> new BookNotFoundException("Book not found with ISBN: " + isbn));
+        return mapToResponse(book);
     }
 
-	public List<Book> searchBooks(String title, String author, String category,
-	                              String isbn, Double minPrice, Double maxPrice,
-	                              String sortBy, String sortDir) {
+    public List<BookResponseDTO> searchBooks(
+            String title, String author, String category,
+            String isbn, Double minPrice, Double maxPrice,
+            String sortBy, String sortDir, Boolean available) {
 
-	    Sort.Direction direction = (sortDir != null && sortDir.equalsIgnoreCase("desc"))
-	            ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort.Direction direction = (sortDir != null && sortDir.equalsIgnoreCase("desc"))
+                ? Sort.Direction.DESC : Sort.Direction.ASC;
 
-	    String sortField = (sortBy != null && (sortBy.equalsIgnoreCase("price") || sortBy.equalsIgnoreCase("publishedDate")))
-	            ? sortBy : "title"; // Default sort by title
+        String sortField = (sortBy != null && (sortBy.equalsIgnoreCase("price") || sortBy.equalsIgnoreCase("publishedDate")))
+                ? sortBy : "title";
 
-	    Sort sort = Sort.by(direction, sortField);
+        Sort sort = Sort.by(direction, sortField);
 
-	    return bookRepository.findByFilters(
-	            isBlank(title) ? null : title,
-	            isBlank(author) ? null : author,
-	            isBlank(category) ? null : category,
-	            isBlank(isbn) ? null : isbn,
-	            minPrice,
-	            maxPrice,
-	            sort
-	    );
-	}
-
-	private boolean isBlank(String value) {
-	    return value == null || value.trim().isEmpty();
-	}
-
-	
-
-	public List<Book> getLowStockBooks(int threshold) {
-        return bookRepository.findByStockQuantityLessThan(threshold);
+        return bookRepository.findByFilters(
+                isBlank(title) ? null : title,
+                isBlank(author) ? null : author,
+                isBlank(category) ? null : category,
+                isBlank(isbn) ? null : isbn,
+                minPrice,
+                maxPrice,
+                available != null && available,
+                sort
+        ).stream().map(this::mapToResponse).toList();
     }
 
-	
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    public List<BookResponseDTO> getLowStockBooks(int threshold) {
+        return bookRepository.findByStockQuantityLessThan(threshold)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Transactional
+    public void deductStockAfterOrder(Long bookId, int quantity, boolean isReversal) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException("Book not found with ID: " + bookId));
+
+        int updatedStock = book.getStockQuantity() - quantity;
+
+        if (updatedStock < 0) {
+            throw new InsufficientStockException("Not enough stock for book: " + book.getTitle());
+        }
+
+        book.setStockQuantity(updatedStock);
+        bookRepository.save(book);
+    }
+
+    @Transactional
+    public void restoreStockAfterCancellationOrReturn(List<OrderItem> items) {
+        for (OrderItem item : items) {
+            Book book = item.getBook();
+            int updatedStock = book.getStockQuantity() + item.getQuantity();
+            book.setStockQuantity(updatedStock);
+            bookRepository.save(book);
+        }
+    }
+
+    private BookResponseDTO mapToResponse(Book book) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean isAdmin = authentication != null && authentication.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+
+        return new BookResponseDTO(book, isAdmin);
+    }
 }

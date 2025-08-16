@@ -1,35 +1,40 @@
 package com.bookstore.entity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "cart")
 public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long cartId;
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JoinColumn(name = "userId", nullable = false, unique = true)
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+
     
-    // Constructors
     
     public Cart() {}
 
     public Cart(User user) {
         this.user = user;
-        this.items = new ArrayList<>();
     }
 
     
-    //methods to maintain bidirectional consistency
+    
     
     public void addItem(CartItem item) {
         items.add(item);
@@ -40,17 +45,21 @@ public class Cart {
         items.remove(item);
         item.setCart(null);
     }
-    
-    
-    
-    // Getters and setters
 
-    public Long getId() {
-        return id;
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    public void setId(Long id) {
-        this.id = id;
+
+    
+    
+    public Long getCartId() {
+        return cartId;
+    }
+
+    public void setCartId(Long cartId) {
+        this.cartId = cartId;
     }
 
     public User getUser() {
@@ -68,4 +77,9 @@ public class Cart {
     public void setItems(List<CartItem> items) {
         this.items = items;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
 }

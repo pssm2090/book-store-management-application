@@ -1,7 +1,12 @@
 package com.bookstore.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 public class Payment {
@@ -11,14 +16,16 @@ public class Payment {
     private Long paymentId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    @JoinColumn(name = "orderId", nullable = false, unique = true)
     private Order order;
 
-    @Column(nullable = false)
-    private double amount;
+    @NotNull(message = "Amount must not be null")
+    private BigDecimal amount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime paymentDate;
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -28,12 +35,14 @@ public class Payment {
     @Column(nullable = false)
     private PaymentStatus status;
 
-    private String transactionId; // From payment gateway (if applicable)
+    @Column(length = 100)
+    private String transactionId; 
 
-    // Constructors
+
+    
     public Payment() {}
 
-    public Payment(Order order, double amount, LocalDateTime paymentDate,
+    public Payment(Order order, BigDecimal amount, LocalDateTime paymentDate,
                    PaymentMethod method, PaymentStatus status, String transactionId) {
         this.order = order;
         this.amount = amount;
@@ -43,7 +52,8 @@ public class Payment {
         this.transactionId = transactionId;
     }
 
-    // Getters and Setters
+
+    
     public Long getPaymentId() {
         return paymentId;
     }
@@ -60,11 +70,11 @@ public class Payment {
         this.order = order;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

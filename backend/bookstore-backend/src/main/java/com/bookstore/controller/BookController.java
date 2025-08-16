@@ -1,6 +1,7 @@
 package com.bookstore.controller;
 
-import com.bookstore.entity.Book;
+import com.bookstore.dto.book.BookRequestDTO;
+import com.bookstore.dto.book.BookResponseDTO;
 import com.bookstore.service.BookService;
 
 import jakarta.validation.Valid;
@@ -23,10 +24,10 @@ public class BookController {
 
 	@PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/add")
-    public ResponseEntity<Book> addBook(@Valid @RequestBody Book book) {
-        Book savedBook = bookService.addBook(book);
-        return ResponseEntity.ok(savedBook);
-    }
+	public ResponseEntity<BookResponseDTO> addBook(@Valid @RequestBody BookRequestDTO bookDto) {
+	    BookResponseDTO savedBook = bookService.addBook(bookDto);
+	    return ResponseEntity.ok(savedBook);
+	}
 
 	@PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/bulk-upload")
@@ -37,10 +38,10 @@ public class BookController {
     
 	@PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{bookId}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long bookId, @Valid @RequestBody Book updatedBook) {
-            Book savedBook = bookService.updateBook(bookId, updatedBook);
-            return ResponseEntity.ok(savedBook);
-    }
+	public ResponseEntity<BookResponseDTO> updateBook(@PathVariable Long bookId, @Valid @RequestBody BookRequestDTO updatedBookDto) {
+	    BookResponseDTO updatedBook = bookService.updateBook(bookId, updatedBookDto);
+	    return ResponseEntity.ok(updatedBook);
+	}
 	
     
 	@PreAuthorize("hasRole('ADMIN')")
@@ -53,47 +54,44 @@ public class BookController {
   
     
     
-    @GetMapping("/{bookId}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long bookId) {
-    	Book book = bookService.getBookById(bookId);
-    	return ResponseEntity.ok(book);
+    @GetMapping("/get/{bookId}")
+    public ResponseEntity<BookResponseDTO> getBookById(@PathVariable Long bookId) {
+        return ResponseEntity.ok(bookService.getBookById(bookId));
     }
     
     @GetMapping("/get-all")
-    public ResponseEntity<List<Book>> getAllBooks() {
-    	List<Book> books = bookService.getAllBooks();
-    	return ResponseEntity.ok(books);
+    public ResponseEntity<List<BookResponseDTO>> getAllBooks() {
+        return ResponseEntity.ok(bookService.getAllBooks());
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Book>> searchBooks(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String author,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String isbn,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
-            @RequestParam(required = false) String sortBy,       // "price" or "publishedDate"
-            @RequestParam(required = false) String sortDir       // "asc" or "desc"
-    ) {
-        List<Book> books = bookService.searchBooks(
-            title, author, category, isbn, minPrice, maxPrice, sortBy, sortDir
-        );
-        return ResponseEntity.ok(books);
-    }
+    public ResponseEntity<List<BookResponseDTO>> searchBooks(
+    	    @RequestParam(required = false) String title,
+    	    @RequestParam(required = false) String author,
+    	    @RequestParam(required = false) String category,
+    	    @RequestParam(required = false) String isbn,
+    	    @RequestParam(required = false) Double minPrice,
+    	    @RequestParam(required = false) Double maxPrice,
+    	    @RequestParam(required = false) String sortBy,
+    	    @RequestParam(required = false) String sortDir,
+    	    @RequestParam(required = false) Boolean available
+    	) {
+    	    return ResponseEntity.ok(bookService.searchBooks(
+    	        title, author, category, isbn, minPrice, maxPrice, sortBy, sortDir, available
+    	    ));
+    	}
 
     
-    @GetMapping("/isbn/{isbn}")
-    public ResponseEntity<Book> getBookByIsbn(@PathVariable String isbn) {
-    	Book book = bookService.getBookByIsbn(isbn);
-    	return ResponseEntity.ok(book);
+    @GetMapping("/get/isbn/{isbn}")
+    public ResponseEntity<BookResponseDTO> getBookByIsbn(@PathVariable String isbn) {
+        return ResponseEntity.ok(bookService.getBookByIsbn(isbn));
     }
     
-    @GetMapping("/low-stock")
-    public ResponseEntity<List<Book>> getLowStockBooks(
-            @RequestParam(defaultValue = "5") int threshold) {  // default 5
-        List<Book> lowStockBooks = bookService.getLowStockBooks(threshold);
-        return ResponseEntity.ok(lowStockBooks);
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/get/low-stock")
+    public ResponseEntity<List<BookResponseDTO>> getLowStockBooks(
+            @RequestParam(defaultValue = "5") int threshold) {
+        return ResponseEntity.ok(bookService.getLowStockBooks(threshold));
     }
 
 }

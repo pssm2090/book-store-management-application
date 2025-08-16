@@ -2,7 +2,8 @@ package com.bookstore.entity;
 
 public enum PaymentStatus {
     PENDING,
-    SUCCESS,
+    UNPAID,
+    PAID,
     FAILED,
     REFUNDED
 }

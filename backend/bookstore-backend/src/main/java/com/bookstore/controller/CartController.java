@@ -18,35 +18,35 @@ public class CartController {
 	@Autowired
     private CartService cartService;
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/add")
     public ResponseEntity<CartResponseDTO> addToCart(@Valid @RequestBody AddToCartRequestDTO request) {
         CartResponseDTO response = cartService.addToCart(request);
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("/update")
     public ResponseEntity<CartResponseDTO> updateCartItem(@Valid @RequestBody UpdateCartItemRequestDTO request) {
         CartResponseDTO response = cartService.updateCartItemQuantity(request);
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping
+    @PreAuthorize("hasRole('CUSTOMER')")
+    @GetMapping("/get")
     public ResponseEntity<CartResponseDTO> getCart() {
         CartResponseDTO response = cartService.getUserCart();
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @DeleteMapping("/remove/{cartItemId}")
     public ResponseEntity<CartResponseDTO> removeCartItem(@PathVariable Long cartItemId) {
         CartResponseDTO response = cartService.removeCartItem(cartItemId);
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
     @DeleteMapping("/clear")
     public ResponseEntity<String> clearCart() {
         cartService.clearCart();

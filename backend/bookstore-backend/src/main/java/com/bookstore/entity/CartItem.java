@@ -1,29 +1,35 @@
 package com.bookstore.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
+@Table(name = "cart_items")
 public class CartItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long cartItemId;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id", nullable = false)
+    @JoinColumn(name = "cartId", nullable = false)
     private Cart cart;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "bookId", nullable = false)
     private Book book;
 
     @Column(nullable = false)
     private int quantity;
 
-    // Constructors
+    private LocalDateTime createdAt;
+
+    
+    
+    
     public CartItem() {}
 
     public CartItem(Cart cart, Book book, int quantity) {
@@ -32,13 +38,23 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    
+    
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    
+    
+
+    public Long getCartItemId() {
+        return cartItemId;
+    }
+
+    public void setCartItemId(Long cartItemId) {
+        this.cartItemId = cartItemId;
     }
 
     public Cart getCart() {
@@ -64,4 +80,10 @@ public class CartItem {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+
 }

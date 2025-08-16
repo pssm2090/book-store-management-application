@@ -20,8 +20,8 @@ public class LoginResponse {
         this.role = role;
     }
 
-    // === Getters & Setters ===
 
+    
     public String getAccessToken() {
         return accessToken;
     }

@@ -12,7 +12,7 @@ public class LoginRequest {
     @NotBlank(message = "Password is required")
     private String password;
 
-    // === Getters & Setters ===
+
     
     public String getEmail() {
         return email;

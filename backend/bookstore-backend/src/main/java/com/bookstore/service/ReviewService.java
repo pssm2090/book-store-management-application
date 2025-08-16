@@ -50,7 +50,7 @@ public class ReviewService {
 
 
     public List<Review> getReviewsByUser(Long userId) {
-        List<Review> reviews = reviewRepository.findByUserId(userId);
+        List<Review> reviews = reviewRepository.findByUserUserId(userId);
         if (reviews.isEmpty()) {
             throw new NoReviewsFoundException("No reviews found for user with ID: " + userId);
         }
@@ -59,17 +59,19 @@ public class ReviewService {
 
 
     public void deleteReview(Long reviewId, String userEmail) {
-    	
-    	Review review = reviewRepository.findById(reviewId)
-    	        .orElseThrow(() -> new ReviewNotFoundException("Review not found with ID: " + reviewId));
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new ReviewNotFoundException("Review not found with ID: " + reviewId));
 
-    	if (!review.getUser().getEmail().equals(userEmail)) {
-    	    throw new UnauthorizedReviewAccessException("You are not authorized to delete this review");
-    	}
+        User user = userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new ReviewNotFoundException("User not found with email: " + userEmail));
 
+        if (!review.getUser().getEmail().equals(userEmail) && !user.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedReviewAccessException("You are not authorized to delete this review");
+        }
 
         reviewRepository.deleteById(reviewId);
     }
+
     
     
     public double getAverageRatingForBook(Long bookId) {
@@ -80,7 +82,7 @@ public class ReviewService {
         return reviews.stream()
                       .mapToInt(Review::getRating)
                       .average()
-                      .orElse(0.0); // fallback, though won't happen due to empty check
+                      .getAsDouble();
     }
 
 }

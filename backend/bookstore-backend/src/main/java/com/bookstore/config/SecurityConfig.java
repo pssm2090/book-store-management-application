@@ -25,22 +25,36 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
                 
-                .requestMatchers(HttpMethod.GET, "/api/books/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+            	.requestMatchers(HttpMethod.POST, "/api/auth/refresh-token").permitAll()
+            	    
+                .requestMatchers(HttpMethod.GET, "/api/books/get/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/books/get-all").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/books/search").permitAll()
                 
-                .requestMatchers(HttpMethod.POST, "/api/books/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/books/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/categories/get/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories/get-all").permitAll()
+                
+                .requestMatchers(HttpMethod.GET, "/api/reviews/get/{bookId}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/get/average-rating/**").permitAll()
 
-                .requestMatchers(HttpMethod.POST, "/api/categories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasRole("ADMIN")
-                
-                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated() 
-                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated() 
+
+//                
+//                .requestMatchers("/api/cart/**").hasRole("CUSTOMER")
+//
+//                .requestMatchers(HttpMethod.POST, "/api/orders/**").hasRole("CUSTOMER")   
+//                .requestMatchers(HttpMethod.GET, "/api/orders/**").authenticated()        
+//                .requestMatchers(HttpMethod.PUT, "/api/orders/**").hasRole("ADMIN")       
+//                .requestMatchers(HttpMethod.DELETE, "/api/orders/**").authenticated()    // handling with condition
+//                
+//                .requestMatchers(HttpMethod.POST, "/api/returns/**").hasRole("CUSTOMER")
+//                .requestMatchers(HttpMethod.GET, "/api/returns/my").hasRole("CUSTOMER")
+//                .requestMatchers(HttpMethod.GET, "/api/returns").hasRole("ADMIN")
+//                .requestMatchers(HttpMethod.POST, "/api/returns/*/process").hasRole("ADMIN")
+//
+
 
 
                 .anyRequest().authenticated()

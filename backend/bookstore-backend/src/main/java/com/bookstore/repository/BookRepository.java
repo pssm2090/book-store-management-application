@@ -1,6 +1,8 @@
 package com.bookstore.repository;
 
 import com.bookstore.entity.Book;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +24,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     	      AND (:isbn IS NULL OR b.isbn = :isbn)
     	      AND (:minPrice IS NULL OR b.price >= :minPrice)
     	      AND (:maxPrice IS NULL OR b.price <= :maxPrice)
+    	      AND (:available IS NULL OR (b.stockQuantity > 0))
     	""")
     	List<Book> findByFilters(
     	    @Param("title") String title,
@@ -30,7 +33,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     	    @Param("isbn") String isbn,
     	    @Param("minPrice") Double minPrice,
     	    @Param("maxPrice") Double maxPrice,
-    	    org.springframework.data.domain.Sort sort
+    	    @Param("available") Boolean available,
+    	    Sort sort
     	);
 
 
