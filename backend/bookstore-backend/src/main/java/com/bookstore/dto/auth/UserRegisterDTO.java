@@ -34,7 +34,6 @@ public class UserRegisterDTO {
 //    @Size(max = 255, message = "Address must be at most 255 characters")
 //    private String address;
 
-    // === Getters & Setters ===
     
     public String getName() {
         return name;

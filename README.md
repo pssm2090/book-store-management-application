@@ -10,11 +10,11 @@ A full-stack web-based Book Store Management System that digitizes and simplifie
 
 ## Modules
 
-1. Inventory Management Module  
-2. User Management Module  
-3. Sales and Order Processing Module  
-4. Reporting and Analytics Module  
-5. Search and Recommendation Module
+User Management
+Inventory Management  
+Sales, Order and Payment Processing
+Reporting and Analytics  
+Search and Recommendation
 
 ## Technology Stack
 
@@ -23,7 +23,7 @@ A full-stack web-based Book Store Management System that digitizes and simplifie
 | Frontend   | Angular, TypeScript, SCSS, Tailwind CSS (optional)      |
 | Backend    | Java, Spring Boot, Spring Data JPA, Maven               |
 | Database   | MySQL (local, later shift to online)                    |
-| Security   | Spring Security, JWT (to be added later)                |
+| Security   | Spring Security, JWT                                    |
 | Payment    | Razorpay (to be integrated later)                       |
 | Tools      | Git, GitHub, Postman, MySQL Workbench, Eclipse, VS Code |
 | Reporting  | JasperReports / Apache POI                              |
@@ -85,13 +85,36 @@ App will be available at: http://localhost:4200
   - Low stock alerts
   - Import books in bulk using CSV file
 
-## Team
+## Sprint 2 – Progress
 
-- **Sudhanshu Rout** (Team Lead)
-- **Arya Bhardwaj Mishra**
-- **Pranjal Sahu**
-- **Nandani Singh**
-- **Priti Mondal**
+- `User` and `Role` Entity create
+- JWT authentication and authorization setup
+- Features implement
+  - User registration, login, and profile update
+  - Role-based access for Admin and Customer
+  - Token refresh using refresh token
+  - Password encryption using PasswordEncoder
+  - Admin access to user list and stats
+
+## Sprint 3 – Progress
+
+- Bug fixes and validations added
+- DTO validations using annotations
+  - Duplicate checks and Unauthorized access handled
+  - Custom exception handling implemented
+  - Error response formatting
+  - Token flow verified and refresh functionality tested
+
+## Sprint 4 – Progress
+
+- `Cart`, `CartItem`, `Order`, `OrderItem` and `Payment` Entity create
+- Controller, Service, Repository layers create
+- Features implement
+  - Add / Remove / Update books in cart
+  - Place order from cart
+  - View order history by customer and admin
+  - Admin can update order status (SHIPPED, DELIVERED, RETURNED, CANCELLED)
+  - Enum-based status handling for order and payment
 
 ---
 

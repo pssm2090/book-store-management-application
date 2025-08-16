@@ -10,7 +10,8 @@ public class CartResponseDTO {
     private List<CartItemDTO> items;
     private BigDecimal grandTotal;
 
-    // Constructors
+
+    
     public CartResponseDTO() {}
 
     public CartResponseDTO(Long cartId, Long userId, List<CartItemDTO> items, BigDecimal grandTotal) {
@@ -20,7 +21,8 @@ public class CartResponseDTO {
         this.grandTotal = grandTotal;
     }
 
-    // Getters and Setters
+
+    
     public Long getCartId() {
         return cartId;
     }

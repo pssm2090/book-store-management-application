@@ -5,23 +5,32 @@ import jakarta.validation.constraints.Size;
 
 public class UserUpdateDTO {
 
-    @NotBlank(message = "Name is required")
+    @NotBlank(message = "Current password is required")
+    private String oldPassword;
+
     @Size(min = 2, max = 50, message = "Name must be between 2 to 50 characters")
     private String name;
 
     @Size(min = 6, message = "Password must be at least 6 characters")
-    private String password;  // Optional - only if user wants to change it
+    private String password;
 
-    // Constructors
     public UserUpdateDTO() {
     }
 
-    public UserUpdateDTO(String name, String password) {
+    public UserUpdateDTO(String oldPassword, String name, String password) {
+        this.oldPassword = oldPassword;
         this.name = name;
         this.password = password;
     }
 
-    // Getters and Setters
+    public String getOldPassword() {
+        return oldPassword;
+    }
+
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
+    }
+
     public String getName() {
         return name;
     }

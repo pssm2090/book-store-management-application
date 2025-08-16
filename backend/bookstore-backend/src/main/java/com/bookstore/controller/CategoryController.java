@@ -35,13 +35,13 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
-    @GetMapping("/id/{categoryId}")
+    @GetMapping("/get/{categoryId}")
     public ResponseEntity<Category> getCategoryById(@PathVariable Long categoryId) {
         Category category = categoryService.getCategoryById(categoryId);
         return ResponseEntity.ok(category);
     }
     
-    @GetMapping("/name/{categoryName}")
+    @GetMapping("/get/name/{categoryName}")
     public ResponseEntity<Category> getCategoryByName(@PathVariable String categoryName) {
         Category category = categoryService.getCategoryByName(categoryName);
         return ResponseEntity.ok(category);

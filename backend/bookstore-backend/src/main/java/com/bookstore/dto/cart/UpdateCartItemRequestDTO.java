@@ -11,7 +11,9 @@ public class UpdateCartItemRequestDTO {
     @Min(value = 1, message = "Quantity must be at least 1")
     private int quantity;
 
-    // Constructors
+
+    
+    
     public UpdateCartItemRequestDTO() {}
 
     public UpdateCartItemRequestDTO(Long cartItemId, int quantity) {
@@ -19,7 +21,9 @@ public class UpdateCartItemRequestDTO {
         this.quantity = quantity;
     }
 
-    // Getters and Setters
+
+    
+    
     public Long getCartItemId() {
         return cartItemId;
     }

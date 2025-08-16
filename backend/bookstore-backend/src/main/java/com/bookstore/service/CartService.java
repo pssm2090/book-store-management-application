@@ -72,7 +72,7 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findById(request.getCartItemId())
                 .orElseThrow(() -> new CartItemNotFoundException("Cart item not found"));
 
-        if (!cartItem.getCart().getUser().getId().equals(user.getId())) {
+        if (!cartItem.getCart().getUser().getUserId().equals(user.getUserId())) {
             throw new UnauthorizedCartAccessException("Cart item does not belong to the user");
         }
 
@@ -96,7 +96,7 @@ public class CartService {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new CartItemNotFoundException("Cart item not found"));
 
-        if (!cartItem.getCart().getUser().getId().equals(user.getId())) {
+        if (!cartItem.getCart().getUser().getUserId().equals(user.getUserId())) {
             throw new UnauthorizedCartAccessException("Cart item does not belong to the user");
         }
 
@@ -120,7 +120,7 @@ public class CartService {
     private CartResponseDTO buildCartResponse(Cart cart) {
         List<CartItemDTO> items = cart.getItems().stream()
                 .map(item -> new CartItemDTO(
-                        item.getId(),
+                        item.getCartItemId(),
                         item.getBook().getBookId(),
                         item.getBook().getTitle(),
                         item.getBook().getPrice(),
@@ -133,8 +133,8 @@ public class CartService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
         return new CartResponseDTO(
-        	    cart.getId(),
-        	    cart.getUser().getId(),
+        	    cart.getCartId(),
+        	    cart.getUser().getUserId(),
         	    items,
         	    totalAmount
         	);

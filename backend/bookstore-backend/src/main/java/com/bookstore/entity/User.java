@@ -12,7 +12,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
     @Column(nullable = false)
     private String name;
@@ -32,11 +32,12 @@ public class User {
 //    
 //    private String address;
 
+    @Column(updatable = false)
     private LocalDateTime createdAt;
+
     private LocalDateTime updatedAt;
 
-    // === Constructors ===
-
+    
     public User() {
     }
 
@@ -57,14 +58,13 @@ public class User {
 //        this.address = address;
 //    }
 
-    // === Getters and Setters ===
 
-    public Long getId() {
-        return id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getName() {
@@ -124,7 +124,6 @@ public class User {
     }
 
 
-    // === Lifecycle Callbacks ===
 
     @PrePersist
     protected void onCreate() {
@@ -137,12 +136,11 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
     
-    // === To String ===
     
     @Override
     public String toString() {
         return "User{" +
-               "id=" + id +
+               "id=" + userId +
                ", name='" + name + '\'' +
                ", email='" + email + '\'' +
                ", role=" + role +

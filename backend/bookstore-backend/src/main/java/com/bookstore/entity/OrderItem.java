@@ -1,45 +1,74 @@
 package com.bookstore.entity;
 
-import jakarta.persistence.*;
+import java.math.BigDecimal;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+
+/**
+ * Entity representing an item within an order.
+ * Each OrderItem links a specific book with a quantity and price,
+ * and is associated with a parent Order.
+ */
 @Entity
+@Table(name = "order_items")
 public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long orderItemId;
 
+    /**
+     * Many OrderItems belong to one Order.
+     * Uses LAZY fetching to avoid loading the full Order unless required.
+     */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "orderId", nullable = false)
     private Order order;
 
+    /**
+     * Each OrderItem is linked to one Book.
+     * EAGER fetch is used because book details are often needed when accessing order items.
+     */
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "bookId", nullable = false)
     private Book book;
 
+    /**
+     * Quantity of the book ordered.
+     * Must be at least 1.
+     */
+    @Min(1)
     @Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = false)
-    private double price;
+    /**
+     * Price per unit of the book at the time of order.
+     * Precision = 10, Scale = 2 means it supports up to 99999999.99.
+     */
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
 
-    // Constructors
-    public OrderItem() {}
+    // ───────────── Constructors ─────────────
 
-    public OrderItem(Order order, Book book, int quantity, double price) {
+    public OrderItem() {
+    }
+
+    public OrderItem(Order order, Book book, int quantity, BigDecimal price) {
         this.order = order;
         this.book = book;
         this.quantity = quantity;
         this.price = price;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    // ───────────── Getters and Setters ─────────────
+
+    public Long getOrderItemId() {
+        return orderItemId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setOrderItemId(Long orderItemId) {
+        this.orderItemId = orderItemId;
     }
 
     public Order getOrder() {
@@ -66,11 +95,11 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 }

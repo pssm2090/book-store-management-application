@@ -25,15 +25,15 @@ public class Review {
     private LocalDateTime reviewDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "bookId", nullable = false)
     private Book book;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
-    // === Constructors ===
 
+    
     public Review() {}
 
     public Review(int rating, String comment, Book book, User user) {
@@ -43,8 +43,8 @@ public class Review {
         this.user = user;
     }
 
-    // === Getters & Setters ===
 
+    
     public Long getReviewId() {
         return reviewId;
     }
@@ -89,15 +89,15 @@ public class Review {
         this.user = user;
     }
 
-    // === Lifecycle Callbacks ===
 
+    
     @PrePersist
     protected void onCreate() {
         this.reviewDate = LocalDateTime.now();
     }
 
-    // === toString() ===
 
+    
     @Override
     public String toString() {
         return "Review{" +

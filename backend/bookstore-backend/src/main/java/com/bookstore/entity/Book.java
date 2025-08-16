@@ -1,6 +1,7 @@
 package com.bookstore.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ public class Book {
     @NotBlank(message = "Book title is required")
     @Size(max = 255, message = "Title can’t be more than 255 characters")
     @Column(nullable = false, length = 255)
-    private String title; 
+    private String title;
 
     @NotBlank(message = "Author is required")
     @Size(max = 255, message = "Author name can’t be more than 255 characters")
@@ -51,47 +52,44 @@ public class Book {
     private Integer stockQuantity;   
 
     @NotNull(message = "Book category is required")
+    @Valid
     @ManyToOne(fetch = FetchType.EAGER)  
     @JoinColumn(name = "categoryId") 
     private Category category;
 
-//    @Column(length = 500)
-//    private String coverImageUrl;  //will cover later
+    @Column(name = "cover_image_url")
+    private String coverImageUrl;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;  
 
     private LocalDateTime updatedAt; 
 
-    // ========= Constructors ========= //
+    
     public Book() {}
 
 
 
-//    public Book(Long bookId, String title, String author, String description, BigDecimal price, String isbn,
-//			LocalDate publishedDate, Integer stockQuantity, Category category) {
-//		this.bookId = bookId;
-//		this.title = title;
-//		this.author = author;
-//		this.description = description;
-//		this.price = price;
-//		this.isbn = isbn;
-//		this.publishedDate = publishedDate;
-//		this.stockQuantity = stockQuantity;
-//		this.category = category;
-//	}
+    public Book(String title, String author, String description, BigDecimal price, String isbn,
+			LocalDate publishedDate, Integer stockQuantity, Category category, String coverImageUrl) {
+		this.title = title;
+		this.author = author;
+		this.description = description;
+		this.price = price;
+		this.isbn = isbn;
+		this.publishedDate = publishedDate;
+		this.stockQuantity = stockQuantity;
+		this.category = category;
+		this.coverImageUrl = coverImageUrl;
+	}
 
 
 
-	// ========= Getters & Setters ========= //
 
     public Long getBookId() {
         return bookId;
     }
-
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
-    }
+    
 
     public String getTitle() {
         return title;
@@ -157,13 +155,13 @@ public class Book {
         this.category = category;
     }
 
-//    public String getCoverImageUrl() {
-//        return coverImageUrl;
-//    }
-//
-//    public void setCoverImageUrl(String coverImageUrl) {
-//        this.coverImageUrl = coverImageUrl;
-//    }
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -173,7 +171,6 @@ public class Book {
         return updatedAt;
     }
 
-    // ========= Lifecycle Callbacks ========= //
 
     @PrePersist
     protected void onCreate() {
@@ -186,7 +183,6 @@ public class Book {
         this.updatedAt = LocalDateTime.now();
     }
     
-    // ========= To String ========= //
 
     
     @Override
