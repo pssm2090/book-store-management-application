@@ -99,16 +99,13 @@ App will be available at: http://localhost:4200
 ## Sprint 3 – Progress
 
 - Bug fixes and validations added
+- `Cart`, `CartItem`, `Order`, `OrderItem` and `Payment` Entity create
+- Controller, Service, Repository layers create
 - DTO validations using annotations
   - Duplicate checks and Unauthorized access handled
   - Custom exception handling implemented
   - Error response formatting
   - Token flow verified and refresh functionality tested
-
-## Sprint 4 – Progress
-
-- `Cart`, `CartItem`, `Order`, `OrderItem` and `Payment` Entity create
-- Controller, Service, Repository layers create
 - Features implement
   - Add / Remove / Update books in cart
   - Place order from cart
