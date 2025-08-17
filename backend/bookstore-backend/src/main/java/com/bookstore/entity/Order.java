@@ -28,11 +28,11 @@ public class Order {
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PaymentMethod paymentMethod = PaymentMethod.CASH_ON_DELIVERY; // ✅ COD is default
+    @Column(name = "paymentMethod", length = 20, nullable = false)
+    private PaymentMethod paymentMethod = PaymentMethod.CASH;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "paymentStatus", length = 20, nullable = false)
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID; // ✅ Default is UNPAID
 
     @Column(nullable = false)

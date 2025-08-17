@@ -1,0 +1,153 @@
+.cart-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+  margin-top: 3.2rem;
+}
+
+.cart-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.empty-cart {
+  color: #666;
+  font-size: 16px;
+}
+
+.cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.cart-image {
+  width: 80px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.cart-info {
+  flex: 1;
+}
+
+.cart-item-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 5px;
+}
+
+.cart-author {
+  font-size: 14px;
+  color: #666;
+}
+
+.cart-price {
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+.cart-quantity {
+  font-size: 14px;
+  color: #777;
+}
+
+.remove-btn {
+  color: #e74c3c;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: #c0392b;
+}
+
+.cart-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 2px solid #eee;
+}
+
+.cart-total {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.checkout-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.clear-btn {
+  background: #f23535;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-right: 10px;
+}
+
+.checkout-btn:hover {
+  background: #1d4ed8;
+}
+
+.cart-quantity-input {
+  width: 60px;
+  padding: 6px;
+  font-size: 16px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.3s ease;
+  margin-left: 8px;
+}
+
+/* On focus */
+.cart-quantity-input:focus {
+  border-color: #4f46e5; /* Indigo */
+  box-shadow: 0 0 5px rgba(79, 70, 229, 0.4);
+}
+
+/* For number input arrows */
+.cart-quantity-input::-webkit-inner-spin-button,
+.cart-quantity-input::-webkit-outer-spin-button {
+  height: 24px;
+}
+
+/* Responsive tweak */
+@media (max-width: 600px) {
+  .cart-quantity-input {
+    width: 50px;
+    font-size: 14px;
+  }
+}

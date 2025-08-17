@@ -17,28 +17,18 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long bookId;   
 
-    @NotBlank(message = "Book title is required")
-    @Size(max = 255, message = "Title can’t be more than 255 characters")
     @Column(nullable = false, length = 255)
     private String title;
 
-    @NotBlank(message = "Author is required")
-    @Size(max = 255, message = "Author name can’t be more than 255 characters")
     @Column(nullable = false, length = 255)
     private String author; 
 
-    @Size(max = 1000, message = "Description can’t be more than 1000 characters")
     @Column(length = 1000)
     private String description;
 
-    @NotNull(message = "Price is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-    @Digits(integer = 8, fraction = 2, message = "Price must be a valid amount")
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;   
 
-    @NotBlank(message = "ISBN is required")
-    @Size(min = 10, max = 20, message = "ISBN must be between 10 to 20 characters")
     @Column(unique = true, length = 20)
     private String isbn;    
 
@@ -46,12 +36,9 @@ public class Book {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate publishedDate;  
 
-    @NotNull(message = "Stock quantity is required")
-    @Min(value = 0, message = "Stock quantity cannot be negative")
     @Column(nullable = false)
     private Integer stockQuantity;   
 
-    @NotNull(message = "Book category is required")
     @Valid
     @ManyToOne(fetch = FetchType.EAGER)  
     @JoinColumn(name = "categoryId") 

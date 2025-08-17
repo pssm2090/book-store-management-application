@@ -16,8 +16,8 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final long ACCESS_TOKEN_VALIDITY = 1000 * 60 * 15; // 15 minutes
-    private static final long REFRESH_TOKEN_VALIDITY = 1000 * 60 * 60 * 24 * 7; // 7 days
+    private static final long ACCESS_TOKEN_VALIDITY = 1000 * 60 * 60 * 24; // 1 day
+    private static final long REFRESH_TOKEN_VALIDITY = 1000 * 60 * 60 * 24 * 10; // 10 days
 
     @Value("${jwt.secret}")
     private String base64Secret;

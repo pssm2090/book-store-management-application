@@ -2,7 +2,9 @@ package com.bookstore.controller;
 
 import com.bookstore.dto.book.BookRequestDTO;
 import com.bookstore.dto.book.BookResponseDTO;
+import com.bookstore.entity.User;
 import com.bookstore.service.BookService;
+import com.bookstore.service.UserService;
 
 import jakarta.validation.Valid;
 
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/books")
@@ -20,6 +23,9 @@ public class BookController {
 
 	@Autowired
     private BookService bookService;
+	
+	@Autowired
+    private UserService userService;
 
 
 	@PreAuthorize("hasRole('ADMIN')")
@@ -31,9 +37,8 @@ public class BookController {
 
 	@PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/bulk-upload")
-    public ResponseEntity<String> uploadBooksCsv(@RequestParam("file") MultipartFile file) {
-    		bookService.bulkUpload(file);
-    		return ResponseEntity.ok("Books uploaded successfully.");
+    public ResponseEntity<Map<String, Object>> uploadBooksCsv(@RequestParam("file") MultipartFile file) {
+		return bookService.bulkUpload(file);
     }
     
 	@PreAuthorize("hasRole('ADMIN')")
@@ -51,7 +56,13 @@ public class BookController {
             return ResponseEntity.ok("Book deleted successfully");
     }
     
-  
+	@PreAuthorize("hasRole('ADMIN')")
+	@DeleteMapping("/delete-all")
+	public ResponseEntity<String> deleteAllBooks() {
+	    bookService.deleteAllBooks();
+	    return ResponseEntity.ok("All books deleted successfully.");
+	}
+
     
     
     @GetMapping("/get/{bookId}")
@@ -79,7 +90,7 @@ public class BookController {
     	    return ResponseEntity.ok(bookService.searchBooks(
     	        title, author, category, isbn, minPrice, maxPrice, sortBy, sortDir, available
     	    ));
-    	}
+    }
 
     
     @GetMapping("/get/isbn/{isbn}")
@@ -93,5 +104,18 @@ public class BookController {
             @RequestParam(defaultValue = "5") int threshold) {
         return ResponseEntity.ok(bookService.getLowStockBooks(threshold));
     }
+    
+    @GetMapping("/recommendations")
+    @PreAuthorize("hasRole('CUSTOMER') or hasRole('ADMIN')")
+    public ResponseEntity<List<BookResponseDTO>> getBookRecommendationsForCurrentUser() {
+        User user = userService.getCurrentUser();
+        return ResponseEntity.ok(bookService.getBookRecommendations(user.getUserId()));
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<Map<String, List<BookResponseDTO>>> getTrendingBooks() {
+        return ResponseEntity.ok(bookService.getTrendingBooks());
+    }
+
 
 }

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
+@Table(name = "payments")  
 public class Payment {
 
     @Id
@@ -28,11 +29,11 @@ public class Payment {
 
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "paymentMethod", length = 20, nullable = false)
     private PaymentMethod method;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "paymentStatus", length = 20, nullable = false)
     private PaymentStatus status;
 
     @Column(length = 100)

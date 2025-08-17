@@ -111,16 +111,20 @@ public class UserService {
         String accessToken = token.substring(7);
 
         String email = jwtService.extractEmail(accessToken);
-        String name = jwtService.extractName(accessToken);
-        String role = jwtService.extractRole(accessToken);
+        if (email == null) {
+            throw new InvalidTokenException("Invalid or expired access token");
+        }
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
 
         return new LoginResponse(
             accessToken,
             null,
             "Profile fetched successfully",
-            email,
-            name,
-            role
+            user.getEmail(),
+            user.getName(),
+            user.getRole().name() // assuming enum
         );
     }
 

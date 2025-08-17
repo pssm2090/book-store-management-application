@@ -36,6 +36,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     	    @Param("available") Boolean available,
     	    Sort sort
     	);
+    
+    List<Book> findByCategory_NameAndBookIdNotIn(String categoryName, List<Long> excludedBookIds);
+
 
 
 }

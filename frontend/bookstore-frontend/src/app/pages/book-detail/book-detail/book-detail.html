@@ -1,0 +1,103 @@
+<div class="book-detail">
+  <!-- Book Info -->
+  <div class="book-main">
+    <img [src]="book?.coverImageUrl" [alt]="book?.title" class="book-image" />
+
+    <div class="book-info">
+      <h1>{{ book?.title }}</h1>
+      <p><strong>Author:</strong> {{ book?.author }}</p>
+      <p><strong>ISBN:</strong> {{ book?.isbn }}</p>
+      <p><strong>Publish Date:</strong> {{ book?.publishDate }}</p>
+      <p><strong>Category:</strong> {{ book?.categoryName }}</p>
+      <p class="price">₹{{ book?.price }}</p>
+      <p><strong>Stock:</strong> {{ book?.stock }} available</p>
+      <p class="description">{{ book?.description }}</p>
+
+      <!-- ✅ Quantity Input -->
+      <div class="quantity-wrapper">
+        <label for="quantity">Quantity:</label>
+        <input
+          type="number"
+          id="quantity"
+          [(ngModel)]="quantity"
+          min="1"
+          [max]="book?.stock"
+          class="quantity-input"
+        />
+      </div>
+
+      <!-- ✅ Add to Cart Button -->
+      <button class="add-to-cart" (click)="handleAddToCart()">
+        Add to Cart
+      </button>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="reviews">
+    <h2>
+      Reviews (Average Rating: {{ averageRating }} <span class="star">★</span>)
+    </h2>
+
+    <!-- Add Review Form -->
+    <div class="review-form">
+      <h3>Add Your Review</h3>
+
+      <p *ngIf="!user.orderHistory.includes(book?.id)" class="error">
+        You must purchase this book to leave a review.
+      </p>
+
+      <form
+        *ngIf="user.orderHistory.includes(book?.id)"
+        (ngSubmit)="handleSubmitReview()"
+      >
+        <label>
+          Rating:
+          <input
+            type="number"
+            min="0.5"
+            max="5"
+            step="0.5"
+            [(ngModel)]="newRating"
+            name="rating"
+          />
+        </label>
+
+        <label>
+          Comment:
+          <textarea
+            [(ngModel)]="newComment"
+            name="comment"
+            rows="4"
+            placeholder="Write your review here..."
+          ></textarea>
+        </label>
+
+        <p *ngIf="error" class="error">{{ error }}</p>
+        <p *ngIf="success" class="success">{{ success }}</p>
+
+        <button type="submit" class="submit-review">Submit Review</button>
+      </form>
+    </div>
+
+    <!-- Existing Reviews -->
+    <!-- Existing Reviews -->
+    <div *ngFor="let review of reviews" class="review">
+      <p class="review-header">
+        {{ review.name }} – {{ review.rating }}
+        <span class="star">★</span>
+      </p>
+      <p class="review-date">{{ review.date }}</p>
+      <p>{{ review.comment }}</p>
+
+      <!-- ✅ Show delete button only if review belongs to logged-in user -->
+      <button
+        *ngIf="review.userEmail === user.email"
+        (click)="deleteReview(review)"
+        class="delete-btn"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</div>

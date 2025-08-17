@@ -18,7 +18,6 @@ public class PaymentRequestDTO {
     @NotNull(message = "Payment method is required")
     private PaymentMethod method;
 
-    @NotNull(message = "Payment status is required")
     private PaymentStatus status;
 
     private String transactionId; 

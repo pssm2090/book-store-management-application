@@ -31,18 +31,12 @@ public class BookResponseDTO {
         this.stockQuantity = book.getStockQuantity();
         this.coverImageUrl = book.getCoverImageUrl();
         this.categoryName = book.getCategory() != null ? book.getCategory().getName() : null;
-    }
-    
-    public BookResponseDTO(Book book, boolean isAdmin) {
-        this(book); // call customer constructor
-        if (isAdmin) {
-            this.bookId = book.getBookId();
-            this.createdAt = book.getCreatedAt();
-            this.updatedAt = book.getUpdatedAt();
-        }
+        this.bookId = book.getBookId();
+        this.createdAt = book.getCreatedAt();
+        this.updatedAt = book.getUpdatedAt();
     }
 
-    // === Getters and Setters ===
+
 
     public Long getBookId() { return bookId; }
     public void setBookId(Long bookId) { this.bookId = bookId; }

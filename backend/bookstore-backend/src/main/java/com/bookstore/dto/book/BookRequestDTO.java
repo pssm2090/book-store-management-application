@@ -1,10 +1,12 @@
 package com.bookstore.dto.book;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import com.bookstore.entity.Category;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class BookRequestDTO {
 
@@ -14,6 +16,7 @@ public class BookRequestDTO {
 
     @NotBlank(message = "Author is required")
     @Size(max = 255, message = "Author name can’t be more than 255 characters")
+    @Pattern(regexp = "^[A-Za-z .]+$", message = "Name must only contain letters and spaces")
     private String author;
 
     @Size(max = 1000, message = "Description can’t be more than 1000 characters")
@@ -29,13 +32,15 @@ public class BookRequestDTO {
     private String isbn;
 
     @PastOrPresent(message = "Published date cannot be in the future")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate publishedDate;
 
     @NotNull(message = "Stock quantity is required")
     @Min(value = 0, message = "Stock quantity cannot be negative")
     private Integer stockQuantity;
 
-    @NotBlank(message = "Category name is required")
+    @Valid
+    @NotNull(message = "Category is required")
     private Category category; 
 
     @Pattern(regexp = "^(http|https)://.*$", message = "Cover image must be a valid URL")

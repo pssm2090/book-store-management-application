@@ -113,6 +113,28 @@ App will be available at: http://localhost:4200
   - Admin can update order status (SHIPPED, DELIVERED, RETURNED, CANCELLED)
   - Enum-based status handling for order and payment
 
+## Sprint 4 – Progress
+
+- Module 3 (Sales & Order Processing) Completed
+  - Shopping cart features integrated (add/remove/update books)
+  - Secure checkout and order placement
+  - Order status tracking and invoice generation (PDF)
+  - Payment integration prepared for Razorpay (pending production key)
+  - Admin and customer order history views implemented
+- Module 4 (Reporting & Analytics) Completed
+  - Sales reports by category, book, and time (daily/weekly/monthly)
+  - Inventory reports with stock insights and low-stock alerts
+  - Customer behaviors and purchase trends
+  - Revenue tracking with breakdown by category and period
+  - Export to PDF functionality for all reports
+  - Admin-only access for all reporting APIs
+- Module 5 (Search & Recommendation) Completed
+  - Advanced search by title, ISBN, author, or category
+  - Filters for price, rating, and availability
+  - Book review and rating system integrated
+  - Personalized recommendations based on user purchase history
+  - Trending section showing most purchased and top-rated books
+  
 ---
 
 > This `README.md` will be updated incrementally with each sprint to reflect current progress, features, and deployment steps.

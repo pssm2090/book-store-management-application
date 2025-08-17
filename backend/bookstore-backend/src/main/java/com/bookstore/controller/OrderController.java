@@ -1,12 +1,23 @@
 package com.bookstore.controller;
 
 import com.bookstore.dto.order.*;
+import com.bookstore.entity.Order;
+import com.bookstore.entity.Payment;
+import com.bookstore.entity.Role;
+import com.bookstore.entity.User;
+import com.bookstore.exception.*;
+import com.bookstore.service.InvoiceService;
 import com.bookstore.service.OrderService;
+import com.bookstore.service.PaymentService;
+import com.bookstore.service.UserService;
+
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -18,6 +29,16 @@ public class OrderController {
 
 	@Autowired
     private OrderService orderService;
+	
+	@Autowired
+	private InvoiceService invoiceService;
+
+	@Autowired
+	private PaymentService paymentService;
+
+	@Autowired
+	private UserService userService;
+
 
     @PostMapping("/place")
     @PreAuthorize("hasRole('CUSTOMER')")
@@ -40,7 +61,7 @@ public class OrderController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/get-all")
-    public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
+    public ResponseEntity<List<OrderResponseForAdminDTO>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
@@ -61,5 +82,36 @@ public class OrderController {
         orderService.cancelOrder(orderId);
         return ResponseEntity.noContent().build();
     }
+
+    
+    @GetMapping("/{orderId}/invoice")
+    public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long orderId) {
+        Order order = orderService.getOrderEntityById(orderId);
+        if (order == null) {
+            throw new OrderNotFoundException("Order with ID " + orderId + " not found");
+        }
+
+        User currentUser = userService.getCurrentUser();
+        if (!order.getUser().getUserId().equals(currentUser.getUserId()) &&
+                currentUser.getRole() != Role.ADMIN) {
+            throw new AccessDeniedException("You are not allowed to access this invoice");
+        }
+
+        Payment payment = paymentService.getPaymentEntityByOrder(order);
+        if (payment == null) {
+            throw new PaymentNotFoundException("No payment found for order ID " + orderId);
+        }
+
+        byte[] pdfBytes = invoiceService.generateInvoice(order, payment);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "invoice_order_" + orderId + ".pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(pdfBytes);
+    }
+
 
 }

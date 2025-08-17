@@ -1,0 +1,85 @@
+<div class="profile-container">
+  <h1 class="profile-title">My Profile</h1>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <img [src]="avatar" [alt]="name" class="profile-avatar" />
+    <div>
+      <h2 class="profile-name">{{ name }}</h2>
+      <p class="profile-email">{{ email }}</p>
+      <p class="profile-role">Role: {{ role }}</p>
+    </div>
+  </div>
+
+  <!-- Account Details -->
+  <div class="account-section">
+    <h3 class="section-title">Account Details</h3>
+    <p class="total-orders">Total Orders: {{ orders.length }}</p>
+
+    <!-- Old Password (Required for all changes) -->
+    <div class="form-group">
+      <label>Old Password <span style="color: red">*</span></label>
+      <input
+        type="password"
+        [(ngModel)]="oldPassword"
+        placeholder="Enter old password"
+        class="form-input"
+      />
+    </div>
+
+    <!-- Editable Fields -->
+    <div class="form-group">
+      <label>Change Name</label>
+      <input type="text" [(ngModel)]="name" class="form-input" />
+    </div>
+
+    <div class="form-group">
+      <label>Change Password</label>
+      <input
+        type="password"
+        [(ngModel)]="password"
+        placeholder="Enter new password"
+        class="form-input"
+      />
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-group">
+      <button (click)="handleSave()" class="btn btn-save">Save Changes</button>
+       <button (click)="handleLogout()" class="btn btn-logout">Logout</button>
+    </div>
+  </div>
+
+  <!-- Order History -->
+  <div *ngIf="!isAdmin" class="order-history">
+    <h3 class="section-title">Order History</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Payment</th>
+          <th>Placed At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let order of orders">
+          <td>#{{ order.orderId }}</td>
+          <td>
+            <ul>
+              <li *ngFor="let item of order.items">
+                {{ item.title }} (x{{ item.quantity }}) – ₹{{ item.price }}
+              </li>
+            </ul>
+          </td>
+          <td>₹{{ order.totalAmount }}</td>
+          <td>{{ order.status }}</td>
+          <td>{{ order.paymentStatus }} via {{ order.paymentMethod }}</td>
+          <td>{{ order.placedAt | date : "medium" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

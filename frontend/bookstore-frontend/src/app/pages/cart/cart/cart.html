@@ -1,0 +1,40 @@
+<div class="cart-container">
+  <h1 class="cart-title">Your Cart</h1>
+
+  <p class="empty-cart" *ngIf="cartItems.length === 0">Your cart is empty.</p>
+
+  <div *ngIf="cartItems.length > 0">
+    <div class="cart-items">
+      <div class="cart-item" *ngFor="let item of cartItems">
+        <div class="cart-info">
+          <h2 class="cart-item-title">{{ item.title }}</h2>
+          <p class="cart-price">Price: ₹{{ item.price }}</p>
+          <label>Quantity:</label>
+         <input
+  type="number"
+  min="1"
+  class="cart-quantity-input"
+  [(ngModel)]="item.quantity"
+  (change)="updateQuantity(item, item.quantity)"
+/>
+
+
+          <p class="cart-subtotal">Subtotal: ₹{{ item.subtotal }}</p>
+        </div>
+        <button class="remove-btn" (click)="removeItem(item.cartItemId)">
+          Remove
+        </button>
+      </div>
+    </div>
+
+    <div class="cart-footer">
+      <p class="cart-total">Total: ₹{{ total }}</p>
+      <div>
+        <div class="cart-actions">
+          <button class="clear-btn" (click)="clearCart()">Clear Cart</button>
+          <button class="checkout-btn" (click)="checkout()">Checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<nav class="navbar">
+  <!-- Left - Logo -->
+  <a routerLink="/">
+    <div class="logo">
+      <img
+        src="/logo.png"
+        alt="Bookstore Logo"
+      />
+    <h3>Book Store</h3>
+  </div>
+  </a>
+
+  <!-- Middle - Search Bar -->
+  <div class="search-bar">
+    <select [(ngModel)]="searchType">
+      <option value="title">Title</option>
+      <option value="author">Author</option>
+      <option value="isbn">ISBN</option>
+    </select>
+
+    <input type="text" [(ngModel)]="searchQuery" placeholder="Search..." />
+    <button (click)="onSearch()">🔍</button>
+  </div>
+
+  <!-- Right - Profile & Cart -->
+  <div class="right-section">
+    <a [routerLink]="isLoggedIn ? '/profile' : '/login'" class="profile-link">
+      <span class="icon">👤</span>
+      <span>{{ isLoggedIn ?`${userName}` : "Login" }}</span>
+      
+    </a>
+
+    <!-- Hide cart if user is admin -->
+    @if (!(userRole === 'ADMIN')) {
+    <a routerLink="/cart" class="cart-link">
+      🛒 
+    </a>
+    }
+  </div>
+</nav>

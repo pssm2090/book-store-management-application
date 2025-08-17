@@ -55,6 +55,7 @@ public class SecurityConfig {
 //                .requestMatchers(HttpMethod.POST, "/api/returns/*/process").hasRole("ADMIN")
 //
 
+                .requestMatchers("/api/reports/**").hasRole("ADMIN")
 
 
                 .anyRequest().authenticated()

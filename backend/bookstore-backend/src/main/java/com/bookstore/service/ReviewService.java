@@ -1,5 +1,8 @@
 package com.bookstore.service;
 
+import com.bookstore.dto.auth.UserSummaryDTO;
+import com.bookstore.dto.book.BookSummaryDTO;
+import com.bookstore.dto.review.ReviewResponseDTO;
 import com.bookstore.entity.Book;
 import com.bookstore.entity.Review;
 import com.bookstore.entity.User;
@@ -26,8 +29,7 @@ public class ReviewService {
     @Autowired
     private UserRepository userRepository;
 
-    public Review addReview(Review review, String userEmail) {
-        Long bookId = review.getBook().getBookId(); // extract bookId from embedded book
+    public Review addReview(Long bookId, Review review, String userEmail) {
 
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ReviewNotFoundException("Book not found with ID: " + bookId));
@@ -40,21 +42,23 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    public List<Review> getReviewsByBook(Long bookId) {
+    public List<ReviewResponseDTO> getReviewsByBook(Long bookId) {
         List<Review> reviews = reviewRepository.findByBookBookId(bookId);
         if (reviews.isEmpty()) {
             throw new NoReviewsFoundException("No reviews found for book with ID: " + bookId);
         }
-        return reviews;
+
+        return reviews.stream().map(this::mapToDTO).toList();
     }
 
 
-    public List<Review> getReviewsByUser(Long userId) {
+    public List<ReviewResponseDTO> getReviewsByUser(Long userId) {
         List<Review> reviews = reviewRepository.findByUserUserId(userId);
         if (reviews.isEmpty()) {
             throw new NoReviewsFoundException("No reviews found for user with ID: " + userId);
         }
-        return reviews;
+
+        return reviews.stream().map(this::mapToDTO).toList();
     }
 
 
@@ -80,9 +84,32 @@ public class ReviewService {
             throw new NoReviewsFoundException("No reviews found for book with ID: " + bookId);
         }
         return reviews.stream()
-                      .mapToInt(Review::getRating)
+                      .mapToDouble(Review::getRating)
                       .average()
                       .getAsDouble();
+    }
+    
+    
+    private ReviewResponseDTO mapToDTO(Review review) {
+        BookSummaryDTO bookDTO = new BookSummaryDTO(
+            review.getBook().getTitle(),
+            review.getBook().getAuthor()
+        );
+
+        UserSummaryDTO userDTO = new UserSummaryDTO(
+            review.getUser().getName(),
+            review.getUser().getEmail()
+        );
+
+        ReviewResponseDTO dto = new ReviewResponseDTO();
+        dto.setReviewId(review.getReviewId());
+        dto.setRating(review.getRating());
+        dto.setComment(review.getComment());
+        dto.setReviewDate(review.getReviewDate());
+        dto.setBook(bookDTO);
+        dto.setUser(userDTO);
+
+        return dto;
     }
 
 }

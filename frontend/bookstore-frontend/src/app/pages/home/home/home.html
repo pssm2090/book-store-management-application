@@ -1,0 +1,318 @@
+<div class="page">
+  <!-- Search results (only if there are any) -->
+  @if (searchResults.length > 0) {
+  <div class="search-results">
+    <h3>Search Results</h3>
+    <div class="book-grid">
+      @for (book of searchResults; track book.id) {
+      <div class="book-card">
+        <img [src]="book.coverImageUrl" alt="{{ book.title }}" />
+        <h4>
+          {{
+            book.title.length > 16
+              ? (book.title | slice : 0 : 16) + "..."
+              : book.title
+          }}
+        </h4>
+        <p>{{ book.author }}</p>
+        <p>₹{{ book.price }}</p>
+      </div>
+      }
+    </div>
+  </div>
+  } @if (isAdmin) {
+  <h1 class="page-title topMargin">Admin Dashboard</h1>
+
+  <button class="btn stats" [routerLink]="'admin/stats'">View Stats</button>
+  <button class="btn analytics" [routerLink]="'admin/analytics'">View Analytics</button>
+
+  <!-- Book Management -->
+  <section class="section">
+    <h2 class="section-title">Book Management</h2>
+    <div class="btn-row">
+      <button class="btn btn-primary" (click)="addBook()">Add Book</button>
+      <!-- home.html -->
+      <button class="btn btn-success" (click)="fileInput.click()">
+        Import CSV
+      </button>
+      <input
+        type="file"
+        accept=".csv"
+        #fileInput
+        style="display: none"
+        (change)="onFileSelected($event)"
+      />
+    </div>
+
+    <div *ngIf="lowStockBooks.length > 0" class="low-stock-banner">
+      ⚠ {{ lowStockBooks.length }} books are running low on stock.
+      <a [routerLink]="'/admin/books/low-stock'">Review</a>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (book of books; track book.id) {
+        <tr>
+          <td>{{ book.id }}</td>
+          <td>{{ book.title }}</td>
+          <td>₹{{ book.price }}</td>
+          <td [ngClass]="{ 'low-stock': book.stockQuantity < 5 }">
+            {{ book.stockQuantity }}
+          </td>
+          <td>
+            <div class="admin-actions">
+              <button class="btn btn-warning" (click)="editBook(book.id)">
+                Edit
+              </button>
+              <button
+                class="btn btn-danger"
+                (click)="deleteBook(book.id, book.title)"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Users List -->
+  <section class="section">
+    <h2 class="section-title">All Users</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Name</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users; track user.email) {
+        <tr>
+          <td>{{ user.email }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.role }}</td>
+        </tr>
+        } @if (users.length === 0) {
+        <tr>
+          <td colspan="3" class="empty">No users found.</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Orders Management -->
+  <div class="page topMargin">
+    <h2 class="page-title">Orders</h2>
+
+    <!-- Orders Table -->
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <!-- <th>#</th> -->
+          <th>Order ID</th>
+          <th>User ID</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Payment</th>
+          <th>Placed At</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let order of orders; let i = index">
+          <!-- Serial Number -->
+          <!-- <td class="text-center">{{ i + 1 }}</td> -->
+
+          <!-- Order ID -->
+          <td>{{ order.orderId }}</td>
+
+          <!-- User ID -->
+          <td>{{ order.userId }}</td>
+
+          <!-- Items -->
+          <td>
+            <ul class="order-items">
+              <li *ngFor="let item of order.items">
+                {{ item.title }} (x{{ item.quantity }}) – ₹{{ item.price }}
+              </li>
+            </ul>
+          </td>
+
+          <!-- Total Amount -->
+          <td>₹{{ order.totalAmount }}</td>
+
+          <!-- Status with colored select -->
+          <td>
+            <select
+              class="select status {{ order.status }}"
+              [(ngModel)]="order.status"
+               (change)="updateStatus(order.orderId, order.status)"
+            >
+              <option value="PENDING">Pending</option>
+              <option value="PLACED">Placed</option>
+              <option value="SHIPPED">Shipped</option>
+              <option value="DELIVERED">Delivered</option>
+              <!-- <option value="CANCELLED">Cancelled</option>
+              <option value="RETURNED">Returned</option> -->
+            </select>
+          </td>
+
+          <!-- Payment Info -->
+          <td>
+            {{ order.paymentMethod }} <br />
+            <span class="payment {{ order.paymentStatus }}">
+              {{ order.paymentStatus }}
+            </span>
+          </td>
+
+          <!-- Placed At -->
+        <td>{{ order.placedAt | date: "dd-MM-yyyy" }}</td>
+
+
+        </tr>
+
+        <!-- Empty State -->
+        <tr *ngIf="orders.length === 0">
+          <td colspan="8" class="empty">No orders found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  } @else {
+  <!-- USER VIEW -->
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Discover Your Next Favorite Book</h1>
+      <p>Browse through our curated collection and find books you'll love.</p>
+      <a class="btn btn-primary" [routerLink]="'/books/all'">
+        Browse All Books
+      </a>
+    </div>
+  </section>
+
+  <!-- All Books -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">All Books</h2>
+      <a class="link" [routerLink]="'/books/all'">See All</a>
+    </div>
+    <div class="grid-books">
+      @for (book of (books | slice:0:4); track book.id) {
+      <div class="book-card">
+        <img [src]="book.coverImageUrl" [alt]="book.title" />
+        <div class="info">
+          <div class="title">
+            {{
+              book.title.length > 19
+                ? (book.title | slice : 0 : 19) + "..."
+                : book.title
+            }}
+          </div>
+
+          <div class="author">{{ book.author }}</div>
+          <div class="meta">
+            <span class="price">₹{{ book.price }}</span>
+            <!-- <span class="rating">★ {{ book.rating }}</span> -->
+          </div>
+          <div>
+            <a class="btnSmall btn-primary" [routerLink]="['/book', book.id]">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+      }`
+    </div>
+  </section>
+
+  <!-- Recommended Books -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Recommended Books</h2>
+      <a class="link" [routerLink]="'/books/recommended'">See All</a>
+    </div>
+    <div class="grid-books">
+      @for (book of (books | slice:0:4); track book.id) {
+      <div class="book-card">
+        <img [src]="book.coverImageUrl" [alt]="book.title" />
+        <div class="info">
+          <div class="title">
+            {{
+              book.title.length > 19
+                ? (book.title | slice : 0 : 19) + "..."
+                : book.title
+            }}
+          </div>
+          <div class="author">{{ book.author }}</div>
+          <div class="meta">
+            <span class="price">₹{{ book.price }}</span>
+            <!-- <span class="rating">★ {{ book.rating }}</span> -->
+          </div>
+          <div>
+            <a class="btnSmall btn-primary" [routerLink]="['/book', book.id]">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </section>
+
+  <!-- Trending Books -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Trending Books</h2>
+      <a class="link" [routerLink]="'/books/trending'">See All</a>
+    </div>
+    <div class="grid-books">
+      @for (book of (books | slice:0:4); track book.id) {
+      <div class="book-card">
+        <img [src]="book.coverImageUrl" [alt]="book.title" />
+        <div class="info">
+          <div class="title">
+            {{
+              book.title.length > 19
+                ? (book.title | slice : 0 : 19) + "..."
+                : book.title
+            }}
+          </div>
+          <div class="author">{{ book.author }}</div>
+          <div class="meta">
+            <span class="price">₹{{ book.price }}</span>
+            <!-- <span class="rating">★ {{ book.rating }}</span> -->
+          </div>
+          <div>
+            <a class="btnSmall btn-primary" [routerLink]="['/book', book.id]">
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </section>
+  }
+</div>
+
+<div *ngIf="loading" class="loader-container">
+  <span class="loader"></span>
+</div>

@@ -2,7 +2,6 @@ package com.bookstore.dto.payment;
 
 import com.bookstore.entity.PaymentMethod;
 import com.bookstore.entity.PaymentStatus;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,30 +11,14 @@ public class PaymentResponseDTO {
     private Long paymentId;
     private Long orderId;
     private BigDecimal amount;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime paymentDate;
-
     private PaymentMethod method;
     private PaymentStatus status;
     private String transactionId;
+    private LocalDateTime paymentDate;
+    private String clientSecret;
+    private String message;
 
-    
-    
-    public PaymentResponseDTO() {}
 
-    public PaymentResponseDTO(Long paymentId, Long orderId, BigDecimal amount, LocalDateTime paymentDate,
-                              PaymentMethod method, PaymentStatus status, String transactionId) {
-        this.paymentId = paymentId;
-        this.orderId = orderId;
-        this.amount = amount;
-        this.paymentDate = paymentDate;
-        this.method = method;
-        this.status = status;
-        this.transactionId = transactionId;
-    }
-
-    
     
     public Long getPaymentId() {
         return paymentId;
@@ -61,14 +44,6 @@ public class PaymentResponseDTO {
         this.amount = amount;
     }
 
-    public LocalDateTime getPaymentDate() {
-        return paymentDate;
-    }
-
-    public void setPaymentDate(LocalDateTime paymentDate) {
-        this.paymentDate = paymentDate;
-    }
-
     public PaymentMethod getMethod() {
         return method;
     }
@@ -91,5 +66,31 @@ public class PaymentResponseDTO {
 
     public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
+    }
+
+    public LocalDateTime getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(LocalDateTime paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    // ➕ Add these new getters/setters
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

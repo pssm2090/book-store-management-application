@@ -1,0 +1,76 @@
+<div class="topMargin">
+  <div class="edit-book-container" *ngIf="book; else loading">
+    <h1>Edit Book</h1>
+
+    <div class="form-group">
+      <label>Title</label>
+      <input type="text" [(ngModel)]="book.title" placeholder="Title" />
+    </div>
+
+    <div class="form-group">
+      <label>Author</label>
+      <input type="text" [(ngModel)]="book.author" placeholder="Author" />
+    </div>
+
+    <div class="form-group">
+      <label>Price</label>
+      <input type="number" [(ngModel)]="book.price" placeholder="Price" />
+    </div>
+
+    <div class="form-group">
+      <label>ISBN</label>
+      <input type="text" [(ngModel)]="book.isbn" placeholder="ISBN" />
+    </div>
+
+    <div class="form-group">
+      <label>Publish Date</label>
+      <input type="date" [(ngModel)]="book.publishDate" />
+    </div>
+
+    <div class="form-group">
+      <label>Category</label>
+      <input
+        type="text"
+        [(ngModel)]="book.categoryName"
+        placeholder="Category"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Stock Quantity</label>
+      <input type="number" [(ngModel)]="book.stockQuantity" placeholder="Price" />
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <textarea
+        [(ngModel)]="book.description"
+        placeholder="Description"
+      ></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Image URL</label>
+      <input
+        type="text"
+        [(ngModel)]="book.coverImageUrl"
+        placeholder="Image URL"
+      />
+    </div>
+
+    <div class="image-preview">
+      <img [src]="book.coverImageUrl" alt="Book Cover" />
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-primary" (click)="handleSave()">Save</button>
+      <button class="btn btn-secondary" (click)="handleCancel()">Cancel</button>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="loader-container">
+      <span class="loader"></span>
+    </div>
+  </ng-template>
+</div>

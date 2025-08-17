@@ -121,6 +121,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleInvalidToken(InvalidTokenException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+    
+    @ExceptionHandler(InvalidPaymentException.class)
+    public ResponseEntity<Object> handleInvalidPayment(InvalidPaymentException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(OrderAlreadyPaidException.class)
     public ResponseEntity<String> handleOrderAlreadyPaid(OrderAlreadyPaidException ex) {

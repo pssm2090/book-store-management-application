@@ -16,7 +16,7 @@ public class Review {
     @Min(value = 1, message = "Rating must be at least 1")
     @Max(value = 5, message = "Rating can be at most 5")
     @Column(nullable = false)
-    private int rating;
+    private double rating;
 
     @Size(max = 1000, message = "Comment can’t be more than 1000 characters")
     private String comment;
@@ -36,7 +36,7 @@ public class Review {
     
     public Review() {}
 
-    public Review(int rating, String comment, Book book, User user) {
+    public Review(double rating, String comment, Book book, User user) {
         this.rating = rating;
         this.comment = comment;
         this.book = book;
@@ -53,11 +53,11 @@ public class Review {
         this.reviewId = reviewId;
     }
 
-    public int getRating() {
+    public double getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(double rating) {
         this.rating = rating;
     }
 

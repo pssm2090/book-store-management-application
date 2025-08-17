@@ -5,8 +5,12 @@ import com.bookstore.dto.auth.LoginResponse;
 import com.bookstore.dto.auth.RefreshTokenRequest;
 import com.bookstore.dto.auth.UserRegisterDTO;
 import com.bookstore.dto.auth.UserUpdateDTO;
+import com.bookstore.dto.auth.AdminUserResponse;
 import com.bookstore.entity.User;
 import com.bookstore.service.UserService;
+
+import jakarta.validation.Valid;
+
 import com.bookstore.security.JwtService;
 
 import java.util.List;
@@ -30,7 +34,7 @@ public class AuthController {
     
     
     @PostMapping("/register")
-    public ResponseEntity<LoginResponse> register(@RequestBody UserRegisterDTO userRequest) {
+    public ResponseEntity<LoginResponse> register(@Valid @RequestBody UserRegisterDTO userRequest) {
         return ResponseEntity.ok(userService.registerAndGenerateTokens(userRequest));
     }
 
@@ -56,7 +60,7 @@ public class AuthController {
 
     @PutMapping("/update/profile")
     public ResponseEntity<LoginResponse> updateProfile(@RequestHeader("Authorization") String token,
-                                                       @RequestBody UserUpdateDTO updateRequest) {
+                                                       @Valid @RequestBody UserUpdateDTO updateRequest) {
         String accessToken = token.substring(7);
         String email = jwtService.extractEmail(accessToken);
 
@@ -80,15 +84,13 @@ public class AuthController {
     @GetMapping("/admin/get/users")
     public ResponseEntity<?> getAllUsers(@RequestHeader("Authorization") String token) {
 
-        List<LoginResponse> users = userService.getAllUsers()
+        List<AdminUserResponse> users = userService.getAllUsers()
             .stream()
-            .map(user -> new LoginResponse(
-                    null,
-                    null,
-                    "User fetched successfully",
-                    user.getEmail(),
-                    user.getName(),
-                    user.getRole().name()
+            .map(user -> new AdminUserResponse(
+                user.getUserId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole().name()
             ))
             .toList();
 
@@ -107,6 +109,13 @@ public class AuthController {
     public ResponseEntity<LoginResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
         LoginResponse response = userService.refreshAccessToken(request.getRefreshToken());
         return ResponseEntity.ok(response);
+    }
+
+    
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        // No token invalidation — just return success
+        return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }
 
 }

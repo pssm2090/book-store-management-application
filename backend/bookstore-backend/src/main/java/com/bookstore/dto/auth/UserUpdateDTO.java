@@ -1,6 +1,7 @@
 package com.bookstore.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class UserUpdateDTO {
@@ -9,6 +10,7 @@ public class UserUpdateDTO {
     private String oldPassword;
 
     @Size(min = 2, max = 50, message = "Name must be between 2 to 50 characters")
+    @Pattern(regexp = "^[A-Za-z .]+$", message = "Name must only contain letters and spaces")
     private String name;
 
     @Size(min = 6, message = "Password must be at least 6 characters")

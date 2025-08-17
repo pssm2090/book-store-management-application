@@ -1,0 +1,62 @@
+<div class="book-controls-container">
+  <!-- FILTERS -->
+  <div class="filters">
+    <h2>Filter Books</h2>
+
+    <!-- Category Filter -->
+    <select
+      [(ngModel)]="filters.category"
+      (change)="onFilterChange('category', filters.category)"
+    >
+      <option value="">All Categories</option>
+      <option *ngFor="let category of categories" [value]="category">
+        {{ category }}
+      </option>
+    </select>
+
+    <!-- Price Range Filter -->
+    <div class="price-range">
+      <label>
+        Min Price:
+        <input
+          type="number"
+          [(ngModel)]="filters.priceRange[0]"
+          (input)="onCustomPriceChange()"
+          min="0"
+        />
+      </label>
+
+      <label>
+        Max Price:
+        <input
+          type="number"
+          [(ngModel)]="filters.priceRange[1]"
+          (input)="onCustomPriceChange()"
+          min="0"
+        />
+      </label>
+    </div>
+
+    <!-- Availability Filter -->
+    <select
+      [(ngModel)]="filters.availability"
+      (change)="onFilterChange('availability', filters.availability)"
+    >
+      <option value="">All</option>
+      <option value="in-stock">In Stock</option>
+      <option value="out-of-stock">Out of Stock</option>
+    </select>
+  </div>
+
+  <!-- SORTING -->
+  <div class="sorting">
+    <h2>Sort Books</h2>
+    <select [(ngModel)]="sortOption" (change)="onSortChange(sortOption)">
+      <option value="">None</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="date-desc">Newest First</option>
+      <option value="date-asc">Oldest First</option>
+    </select>
+  </div>
+</div>

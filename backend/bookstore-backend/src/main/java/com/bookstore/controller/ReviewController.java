@@ -1,5 +1,6 @@
 package com.bookstore.controller;
 
+import com.bookstore.dto.review.ReviewResponseDTO;
 import com.bookstore.entity.Review;
 import com.bookstore.service.ReviewService;
 import jakarta.validation.Valid;
@@ -19,21 +20,21 @@ public class ReviewController {
     @Autowired
     private ReviewService reviewService;
 
-    @PostMapping("/add")
-    public ResponseEntity<Review> addReview(@Valid @RequestBody Review review,
+    @PostMapping("/add/{bookId}")
+    public ResponseEntity<Review> addReview(@PathVariable Long bookId, @Valid @RequestBody Review review,
                                             @AuthenticationPrincipal UserDetails currentUser) {
-        Review savedReview = reviewService.addReview(review, currentUser.getUsername());
+        Review savedReview = reviewService.addReview(bookId, review, currentUser.getUsername());
         return ResponseEntity.ok(savedReview);
     }
 
     @GetMapping("/get/{bookId}")
-    public ResponseEntity<List<Review>> getReviewsByBook(@PathVariable Long bookId) {
+    public ResponseEntity<List<ReviewResponseDTO>> getReviewsByBook(@PathVariable Long bookId) {
         return ResponseEntity.ok(reviewService.getReviewsByBook(bookId));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/get/user/{userId}")
-    public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<ReviewResponseDTO>> getReviewsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(reviewService.getReviewsByUser(userId));
     }
 

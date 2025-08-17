@@ -23,15 +23,16 @@ public class OrderService {
     @Autowired private OrderItemRepository orderItemRepository;
     @Autowired private UserService userService;
     @Autowired private BookService bookService;
-    
-    private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = Map.of(
-    	    OrderStatus.PLACED, EnumSet.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
-    	    OrderStatus.SHIPPED, EnumSet.of(OrderStatus.DELIVERED),
-    	    OrderStatus.DELIVERED, EnumSet.of(OrderStatus.RETURNED),
-    	    OrderStatus.RETURNED, EnumSet.noneOf(OrderStatus.class),
-    	    OrderStatus.CANCELLED, EnumSet.noneOf(OrderStatus.class)
-    	);
 
+    // Added PENDING to transition rules
+    private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = Map.of(
+        OrderStatus.PENDING, EnumSet.of(OrderStatus.CANCELLED), // Added
+        OrderStatus.PLACED, EnumSet.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
+        OrderStatus.SHIPPED, EnumSet.of(OrderStatus.DELIVERED),
+        OrderStatus.DELIVERED, EnumSet.of(OrderStatus.RETURNED),
+        OrderStatus.RETURNED, EnumSet.noneOf(OrderStatus.class),
+        OrderStatus.CANCELLED, EnumSet.noneOf(OrderStatus.class)
+    );
 
     @Transactional
     public OrderResponseDTO placeOrder(OrderRequestDTO orderRequestDTO) {
@@ -46,9 +47,9 @@ public class OrderService {
 
         Order order = new Order();
         order.setUser(user);
-        order.setStatus(OrderStatus.PLACED);
+        order.setStatus(OrderStatus.PENDING);
         order.setPaymentMethod(orderRequestDTO.getPaymentMethod());
-        order.setPaymentStatus(PaymentStatus.PAID); // Or PENDING if async
+        order.setPaymentStatus(PaymentStatus.UNPAID);
         order.setPlacedAt(LocalDateTime.now());
 
         List<OrderItem> orderItems = new ArrayList<>();
@@ -84,10 +85,8 @@ public class OrderService {
         return mapToOrderResponseDTO(order);
     }
 
-
     public List<OrderResponseDTO> getMyOrders() {
-    	User user = userService.getCurrentUser();
-
+        User user = userService.getCurrentUser();
         List<Order> orders = orderRepository.findByUser(user);
         return orders.stream().map(this::mapToOrderResponseDTO).collect(Collectors.toList());
     }
@@ -97,9 +96,14 @@ public class OrderService {
         return mapToOrderResponseDTO(order);
     }
 
-    public List<OrderResponseDTO> getAllOrders() {
+    public Order getOrderEntityById(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found with id: " + id));
+    }
+    
+    public List<OrderResponseForAdminDTO> getAllOrders() {
         List<Order> orders = orderRepository.findAll();
-        return orders.stream().map(this::mapToOrderResponseDTO).collect(Collectors.toList());
+        return orders.stream().map(this::mapToOrderResponseForAdminDTO).collect(Collectors.toList());
     }
 
     @Transactional
@@ -112,22 +116,18 @@ public class OrderService {
 
         Set<OrderStatus> allowedNextStatuses = ALLOWED_TRANSITIONS.getOrDefault(currentStatus, Set.of());
         if (!allowedNextStatuses.contains(newStatus)) {
-        	throw new InvalidOrderStatusException(
-        		    "Invalid status transition from " + currentStatus + " to " + newStatus +
-        		    ". Allowed: " + allowedNextStatuses
-        		);
-
+            throw new InvalidOrderStatusException(
+                "Invalid status transition from " + currentStatus + " to " + newStatus +
+                ". Allowed: " + allowedNextStatuses
+            );
         }
 
         order.setStatus(newStatus);
         updateTimestamps(order, newStatus);
 
         Order savedOrder = orderRepository.save(order);
-
         return mapToOrderResponseDTO(savedOrder);
     }
-
-
 
     @Transactional
     public void cancelOrder(Long orderId) {
@@ -139,9 +139,9 @@ public class OrderService {
         if (!isOwner) {
             throw new AccessDeniedException("You can only cancel your own order.");
         }
-        
-        if (order.getStatus() != OrderStatus.PLACED) {
-            throw new InvalidOrderStatusException("Only orders with status PLACED can be cancelled.");
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new InvalidOrderStatusException("Only orders with status PENDING or PLACED can be cancelled.");
         }
 
         order.setStatus(OrderStatus.CANCELLED);
@@ -210,7 +210,37 @@ public class OrderService {
         dto.setDeliveredAt(order.getDeliveredAt());
         dto.setReturnedAt(order.getReturnedAt());
 
-        // Newly added:
+        dto.setPaymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null);
+        dto.setPaymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus().name() : null);
+
+        return dto;
+    }
+    
+    private OrderResponseForAdminDTO mapToOrderResponseForAdminDTO(Order order) {
+        List<OrderItemDTO> items = Optional.ofNullable(order.getOrderItems())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(item -> {
+                    OrderItemDTO dto = new OrderItemDTO();
+                    dto.setBookId(item.getBook().getBookId());
+                    dto.setTitle(item.getBook().getTitle());
+                    dto.setPrice(item.getPrice());
+                    dto.setQuantity(item.getQuantity());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        OrderResponseForAdminDTO dto = new OrderResponseForAdminDTO();
+        dto.setOrderId(order.getOrderId());
+        dto.setUserId(order.getUser().getUserId()); // ✅ only in admin DTO
+        dto.setStatus(order.getStatus().name());
+        dto.setTotalAmount(order.getTotalAmount());
+        dto.setItems(items);
+        dto.setPlacedAt(order.getPlacedAt());
+        dto.setCancelledAt(order.getCancelledAt());
+        dto.setShippedAt(order.getShippedAt());
+        dto.setDeliveredAt(order.getDeliveredAt());
+        dto.setReturnedAt(order.getReturnedAt());
         dto.setPaymentMethod(order.getPaymentMethod() != null ? order.getPaymentMethod().name() : null);
         dto.setPaymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus().name() : null);
 

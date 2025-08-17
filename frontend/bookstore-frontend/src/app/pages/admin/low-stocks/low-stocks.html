@@ -1,0 +1,25 @@
+<div class="low-stocks-container">
+  <h2>📉 Low Stock Books</h2>
+
+  <div *ngIf="loading" class="loading">Loading low stock books...</div>
+
+  <div *ngIf="!loading && lowStockBooks.length === 0" class="empty">
+    ✅ All books are sufficiently stocked!
+  </div>
+
+  <div class="book-list" *ngIf="!loading && lowStockBooks.length > 0">
+    <div class="book-card" *ngFor="let book of lowStockBooks">
+      <img [src]="book.coverImageUrl" [alt]="book.title" />
+      <div class="book-info">
+        <h3>{{
+              book.title.length > 17
+                ? (book.title | slice : 0 : 17) + "..."
+                : book.title
+            }}</h3>
+        <p><strong>ID:</strong> {{ book.id }}</p>
+        <p>by {{ book.author }}</p>
+        <p class="stock">Stock: <span>{{ book.stockQuantity }}</span></p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<div class="stats-container">
+  <h2>📊 User Statistics</h2>
+
+  <div *ngIf="loading" class="loading">Loading stats...</div>
+
+  <div *ngIf="!loading && stats">
+    <div class="stats-summary">
+      <div class="card">
+        <h3>Total Users</h3>
+        <p>{{ stats.totalUsers }}</p>
+      </div>
+      <div class="card">
+        <h3>Admins</h3>
+        <p>{{ stats.adminCount }}</p>
+      </div>
+      <div class="card">
+        <h3>Customers</h3>
+        <p>{{ stats.customerCount }}</p>
+      </div>
+    </div>
+
+    <h3 class="recent-title">🆕 Recent Users</h3>
+    <ul class="recent-list">
+      <li *ngFor="let user of stats.recentUsers">
+        <div class="user-card">
+          <div>
+            <strong>{{ user.name }}</strong> 
+            <span class="role">({{ user.role }})</span>
+          </div>
+          <div>{{ user.email }}</div>
+          <!-- <div class="date">Joined: {{ user.createdAt | date:'short' }}</div> -->
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
