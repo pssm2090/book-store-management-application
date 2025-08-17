@@ -112,6 +112,7 @@ App will be available at: http://localhost:4200
   - View order history by customer and admin
   - Admin can update order status (SHIPPED, DELIVERED, RETURNED, CANCELLED)
   - Enum-based status handling for order and payment
+- Frontend implemented inventory management
 
 ## Sprint 4 – Progress
 
@@ -134,7 +135,6 @@ App will be available at: http://localhost:4200
   - Book review and rating system integrated
   - Personalized recommendations based on user purchase history
   - Trending section showing most purchased and top-rated books
-  
 ---
 
 > This `README.md` will be updated incrementally with each sprint to reflect current progress, features, and deployment steps.
