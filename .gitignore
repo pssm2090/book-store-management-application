@@ -28,4 +28,5 @@ docs/       # Ignore docs folder completely (local-only)
 # Database schema (optional)
 database/bookstore_schema.sql 
 
-
+# Secret configuration file (do not commit to Git)
+backend/bookstore-backend/src/main/resources/application-secret.properties
