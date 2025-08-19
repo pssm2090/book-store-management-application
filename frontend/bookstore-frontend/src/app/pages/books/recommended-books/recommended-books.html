@@ -2,23 +2,45 @@
   <h1 class="page-title">Recommended Books</h1>
 
   <!-- Book Controls Component -->
-  <app-book-controls 
-    (filterChange)="onFilterChange($event)" 
-    (sortChange)="onSortChange($event)">
+  <app-book-controls
+    (filterChange)="onFilterChange($event)"
+    (sortChange)="onSortChange($event)"
+  >
   </app-book-controls>
 
   <!-- Books Grid -->
   <div class="books-grid">
     <div *ngFor="let book of books" class="book-card">
-      <img [src]="book.image" [alt]="book.title">
-      <h3>{{ book.title }}</h3>
+      <img [src]="book.coverImageUrl" [alt]="book.title" />
+
+       <h3 class="title">
+            {{
+              book.title.length > 17
+                ? (book.title | slice : 0 : 17) + "..."
+                : book.title
+            }}
+          </h3>
       <p class="author">{{ book.author }}</p>
-      <p class="category">Category: {{ book.category }}</p>
+      <p class="category">Category: {{ book.categoryName }}</p>
       <p class="price">₹{{ book.price }}</p>
-      <p class="availability" [class.in-stock]="book.availability === 'in-stock'"
-                               [class.out-of-stock]="book.availability === 'out-of-stock'">
-        {{ book.availability === 'in-stock' ? 'In Stock' : 'Out of Stock' }}
+
+      <!-- Availability based on stockQuantity -->
+      <p
+        class="availability"
+        [class.in-stock]="book.stockQuantity > 0"
+        [class.out-of-stock]="book.stockQuantity === 0"
+      >
+        {{ book.stockQuantity > 0 ? "In Stock" : "Out of Stock" }}
       </p>
+
+      
+
+      <!-- Optional: Publish Date -->
+      <p class="publish-date">Published: {{ book.publishedDate }}</p>
     </div>
   </div>
 </div>
+
+<div *ngIf="loading" class="loader-container">
+    <span class="loader"></span>
+  </div>

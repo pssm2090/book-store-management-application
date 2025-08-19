@@ -1,6 +1,35 @@
-.chart-container {
+.sales-report-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  margin-top: 3rem;
+}
+
+.title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #1e293b;
+}
+
+.chart-section {
+  margin-bottom: 40px;
+}
+
+.chart-title {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 10px;
+  color: #334155;
+}
+
+.chart-wrapper {
   position: relative;
-  height: 400px;
-  width: 50%;
-  margin-top: 10rem;
+  height: 350px;
+  width: 100%;
 }

@@ -16,9 +16,11 @@ public class CorsConfig {
         config.addAllowedOriginPattern("http://localhost:4200");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        config.addExposedHeader("Authorization"); // expose JWT token
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
 }
+

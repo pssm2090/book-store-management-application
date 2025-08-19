@@ -72,33 +72,42 @@ export class Cart implements OnInit {
   }
 
   clearCart(): void {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This will remove all items from your cart.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, clear it',
-      cancelButtonText: 'Cancel',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.cartService.clearCart().subscribe({
-          next: () => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This will remove all items from your cart.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, clear it',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.cartService.clearCart().subscribe({
+        next: (response) => {
+          if (response.status === 200 || response.status === 204) {
             this.cartItems = [];
             this.total = 0;
             Swal.fire('Cleared!', 'Your cart has been emptied.', 'success');
-          },
-          error: (err) => {
-            console.error('Failed to clear cart', err);
+          } else {
             Swal.fire({
               icon: 'error',
-              title: 'Failed to clear cart',
-              text: 'Something went wrong while clearing your cart. Please try again later.',
+              title: 'Unexpected response',
+              text: `Received status: ${response.status}`,
             });
-          },
-        });
-      }
-    });
-  }
+          }
+        },
+        error: (err) => {
+          console.error('Failed to clear cart', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to clear cart',
+            text: 'Something went wrong while clearing your cart. Please try again later.',
+          });
+        },
+      });
+    }
+  });
+}
+
 
  updateQuantity(cartItem: CartItem, newQuantity: string | number): void {
   const qty = Number(newQuantity);

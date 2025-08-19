@@ -35,3 +35,39 @@
   }
 }
 
+.btn {
+  display: inline-block;
+  padding: 0.55rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+  text-decoration: none;
+}
+
+.btnSmall {
+  display: inline-block;
+  padding: 0.30rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-weight: 400;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.btn:hover {
+  filter: brightness(0.96);
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0752f4; /* darker indigo */
+  transform: translateY(-2px);
+}

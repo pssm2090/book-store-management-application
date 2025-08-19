@@ -1,1 +1,33 @@
-<app-sales-report></app-sales-report>
+<!-- <app-sales-report></app-sales-report> -->
+<div class="analytics-container">
+  <h1 class="title">📈 Analytics Dashboard</h1>
+  <p class="subtitle">Choose a report to view detailed insights</p>
+
+  <div class="report-grid">
+    <div class="report-card" routerLink="/admin/analytics/sales-report">
+      <span class="icon">📊</span>
+      <h2>Sales Report</h2>
+      <p>Track daily, weekly and monthly sales trends</p>
+    </div>
+
+    <div class="report-card" routerLink="/admin/analytics/inventory-report">
+      <span class="icon">📦</span>
+      <h2>Inventory Report</h2>
+      <p>Status of books in stock, bestsellers, and low-stock items.</p>
+    </div>
+
+    <div class="report-card" routerLink="/admin/analytics/customer-behavior">
+      <span class="icon">👥</span>
+      <h2>Customer Behavior</h2>
+      <p>
+        Reports on customer behavior, most active users, and purchase trends.
+      </p>
+    </div>
+
+    <div class="report-card" routerLink="/admin/analytics/revenue-tracking">
+      <span class="icon">💰</span>
+      <h2>Revenue Tracking</h2>
+      <p>Track financial performance and growth</p>
+    </div>
+  </div>
+</div>

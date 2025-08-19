@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import { BookService } from '../../../services/book';
 
 export interface LowStockBook {
-  id: number;
+  bookId: number;
   title: string;
   author: string;
   stockQuantity: number;
@@ -32,7 +32,7 @@ export class LowStocks implements OnInit {
 
   loadLowStockBooks() {
     this.loading = true;
-    this.bookService.getLowStockBooks(this.threshold).subscribe({
+    this.bookService.getLowStockBooks().subscribe({
       next: (data) => {
         this.lowStockBooks = data;
         this.loading = false;

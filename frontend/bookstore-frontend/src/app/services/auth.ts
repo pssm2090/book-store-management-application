@@ -7,7 +7,7 @@ import { tap, catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class Auth {
-  private apiUrl = 'https://api.example.com/api/auth'; // change to your API
+  private apiUrl = 'http://localhost:8080/api/auth'; // change to your API
   private refreshUrl = 'http://localhost:8080/api/auth/refresh-token';
 
   private authState = new BehaviorSubject<boolean>(this.hasTokens());
@@ -17,13 +17,13 @@ export class Auth {
 
   // ===== API Calls =====
   login(credentials: { email: string; password: string }): Observable<any> {
-    // return this.http.post(`${this.apiUrl}/login`, credentials);
-    return this.http.post(`https://dummyjson.com/c/cfac-100a-4f6f-9325`, credentials);
+    return this.http.post(`${this.apiUrl}/login`, credentials);
+    // return this.http.post(`https://dummyjson.com/c/cfac-100a-4f6f-9325`, credentials);
   }
 
   register(data: any): Observable<any> {
-    // return this.http.post(`${this.apiUrl}/register`, data);
-    return this.http.post(`https://dummyjson.com/c/1a06-def2-40c3-a22f`, data);
+    return this.http.post(`${this.apiUrl}/register`, data);
+    // return this.http.post(`https://dummyjson.com/c/1a06-def2-40c3-a22f`, data);
   }
 
   refreshToken(): Observable<any> {

@@ -135,6 +135,16 @@ App will be available at: http://localhost:4200
   - Book review and rating system integrated
   - Personalized recommendations based on user purchase history
   - Trending section showing most purchased and top-rated books
+
+## Sprint 5 – Progress
+- Backend and frontend fully completed
+
+## Sprint 6 – Progress
+- Integration of backend with frontend
+
+## Sprint 7 – Progress
+- Finalization 
+
 ---
 
 > This `README.md` will be updated incrementally with each sprint to reflect current progress, features, and deployment steps.

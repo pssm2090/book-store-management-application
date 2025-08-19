@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { SalesReportComponent } from '../../shared/sales-report/sales-report';
+import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-analytics',
-  imports: [SalesReportComponent],
+  standalone: true,
+  imports: [CommonModule, RouterModule], // so routerLink works
   templateUrl: './analytics.html',
-  styleUrl: './analytics.css'
+  styleUrls: ['./analytics.css'] // must be plural
 })
-export class Analytics {
-
-}
+export class Analytics {}

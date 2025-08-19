@@ -33,13 +33,14 @@ export class Profile implements OnInit {
   constructor(
     private userService: UserService,
     private orderService: OrderService,
-    private authService: Auth, // ✅ inject Auth
-    private router: Router // ✅ inject Router
+    private authService: Auth,
+    private router: Router 
   ) {}
 
   ngOnInit() {
     window.scrollTo(0, 0);
     this.loadProfile();
+    if(!this.isAdmin)
     this.loadOrders();
   }
 

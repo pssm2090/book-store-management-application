@@ -51,6 +51,7 @@ public class Book {
     private LocalDateTime createdAt;  
 
     private LocalDateTime updatedAt; 
+  
 
     
     public Book() {}
@@ -157,7 +158,7 @@ public class Book {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-
+    
 
     @PrePersist
     protected void onCreate() {

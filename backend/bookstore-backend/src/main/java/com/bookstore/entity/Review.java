@@ -5,6 +5,9 @@ import jakarta.validation.constraints.*;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Entity
 @Table(name = "reviews")
 public class Review {
@@ -24,10 +27,12 @@ public class Review {
     @Column(nullable = false, updatable = false)
     private LocalDateTime reviewDate;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "bookId", nullable = false)
     private Book book;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId", nullable = false)
     private User user;

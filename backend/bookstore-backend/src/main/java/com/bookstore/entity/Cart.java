@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Entity
 @Table(name = "cart")
 public class Cart {
@@ -14,6 +17,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartId;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @OneToOne
     @JoinColumn(name = "userId", nullable = false, unique = true)
     private User user;

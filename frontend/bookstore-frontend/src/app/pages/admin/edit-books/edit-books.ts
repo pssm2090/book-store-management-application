@@ -6,12 +6,12 @@ import Swal from 'sweetalert2';
 import { BookService } from '../../../services/book';
 
 interface Book {
-  id: string;
+  bookId: string;
   title: string;
   author: string;
   price: number;
   isbn: string;
-  publishDate: string;
+  publishedDate: string;
   categoryName: string;
   description: string;
   coverImageUrl: string;
@@ -58,7 +58,7 @@ export class EditBooks implements OnInit {
       this.book.author.trim() !== '' &&
       this.book.price > 0 &&
       this.book.isbn.trim() !== '' &&
-      this.book.publishDate.trim() !== '' &&
+      this.book.publishedDate !== '' &&
       this.book.categoryName.trim() !== '' &&
       this.book.description.trim() !== '' &&
       this.book.coverImageUrl.trim() !== '' &&
@@ -66,34 +66,48 @@ export class EditBooks implements OnInit {
     );
   }
 
-  handleSave(): void {
-    if (!this.isFormValid()) {
-      Swal.fire('Validation Error', 'Please fill in all fields correctly.', 'warning');
-      return;
-    }
-
-    Swal.fire({
-      title: 'Save Changes?',
-      text: 'This will update the book details permanently.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#2563eb',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, save it!'
-    }).then((result) => {
-      if (result.isConfirmed) { // update book api call
-        this.bookService.updateBook(this.id, this.book).subscribe({
-          next: () => {
-            Swal.fire('Updated!', 'Book details have been saved.', 'success');
-            this.router.navigate(['/']);
-          },
-          error: () => {
-            Swal.fire('Error', 'Failed to update book.', 'error');
-          }
-        });
-      }
-    });
+ handleSave(): void {
+  if (!this.isFormValid() || !this.book) {
+    Swal.fire('Validation Error', 'Please fill in all fields correctly.', 'warning');
+    return;
   }
+
+  // Convert to dd-MM-yyyy format
+  const dateObj = new Date(this.book.publishedDate);
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  const formattedDate = `${day}-${month}-${year}`;
+
+   const formattedBook = {
+    ...this.book,
+    publishedDate: formattedDate,
+    category: { name: this.book.categoryName } 
+  };
+
+  Swal.fire({
+    title: 'Save Changes?',
+    text: 'This will update the book details permanently.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#2563eb',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, save it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.bookService.updateBook(this.id, formattedBook).subscribe({
+        next: () => {
+          Swal.fire('Updated!', 'Book details have been saved.', 'success');
+          this.router.navigate(['/']);
+        },
+        error: () => {
+          Swal.fire('Error', 'Failed to update book.', 'error');
+        }
+      });
+    }
+  });
+}
+
 
   handleCancel(): void {
     this.router.navigate(['/']);

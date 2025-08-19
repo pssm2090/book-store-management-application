@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,18 +51,23 @@ public class BookController {
 	
     
 	@PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/delete/{bookId}")
-    public ResponseEntity<String> deleteBook(@PathVariable Long bookId) {
-            bookService.deleteBook(bookId);
-            return ResponseEntity.ok("Book deleted successfully");
-    }
-    
+	@DeleteMapping("/delete/{bookId}")
+	public ResponseEntity<Map<String, String>> deleteBook(@PathVariable Long bookId) {
+	    bookService.deleteBook(bookId);
+	    Map<String, String> response = new HashMap<>();
+	    response.put("message", "Book deleted successfully");
+	    return ResponseEntity.ok(response);
+	}
+
 	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/delete-all")
-	public ResponseEntity<String> deleteAllBooks() {
+	public ResponseEntity<Map<String, String>> deleteAllBooks() {
 	    bookService.deleteAllBooks();
-	    return ResponseEntity.ok("All books deleted successfully.");
+	    Map<String, String> response = new HashMap<>();
+	    response.put("message", "All books deleted successfully");
+	    return ResponseEntity.ok(response);
 	}
+
 
     
     

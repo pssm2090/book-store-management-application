@@ -1,12 +1,19 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookService {
-  private apiUrl = 'https://api.example.com/books'; // change to your API
+  private apiUrl = 'http://localhost:8080/api'; 
+
+  private getHeaders() {
+    const token = localStorage.getItem('accessToken');
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
 
   // BehaviorSubject to store search request
   private searchEventSource = new BehaviorSubject<{
@@ -23,42 +30,52 @@ export class BookService {
 
   // GET all books
   getAllBooks(): Observable<any> {
-    // return this.http.get(`${this.apiUrl}/categories/get-all`);
-    return this.http.get(`https://dummyjson.com/c/05eb-5a96-415c-81ed`);
+    return this.http.get(`${this.apiUrl}/books/get-all`);
+    // return this.http.get(`https://dummyjson.com/c/05eb-5a96-415c-81ed`);
   }
 
   // GET book by ID
   getBookById(id: string): Observable<any> {
-    // return this.http.get(`${this.apiUrl}/${id}`);
-    return this.http.get(`https://dummyjson.com/c/68b8-5823-45c1-bfae`);
+    return this.http.get(`${this.apiUrl}/books/get/${id}`);
+    // return this.http.get(`https://dummyjson.com/c/68b8-5823-45c1-bfae`);
   }
 
   // GET recommended books
   getRecommendedBooks(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/recommended`);
+    return this.http.get(`${this.apiUrl}/books/recommendations`,{
+      headers: this.getHeaders()
+    });
   }
 
   // GET trending books
   getTrendingBooks(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/trending`);
+    return this.http.get(`${this.apiUrl}/books/trending`);
   }
 
   // PUT update book
   updateBook(id: string, bookData: any): Observable<any> {
-    // return this.http.put(`${this.apiUrl}/${id}`, bookData);
-    return this.http.put(`https://dummyjson.com/c/d8ac-a228-4481-b4a7`, bookData);
+    return this.http.put(`${this.apiUrl}/books/update/${id}`, bookData,{
+      headers: this.getHeaders()
+    });
+    // return this.http.put(`https://dummyjson.com/c/d8ac-a228-4481-b4a7`, bookData);
+    // http://localhost:8080/api/books/update/1
   }
 
   // POST add a new book
   addBook(bookData: any): Observable<any> {
-    // return this.http.post(`${this.apiUrl}`, bookData);
-    return this.http.post(`https://dummyjson.com/c/99fe-ac11-4a5d-a462`, bookData);
+    return this.http.post(`${this.apiUrl}/books/add`,bookData,{   headers: this.getHeaders() });
+    // return this.http.post(`https://dummyjson.com/c/99fe-ac11-4a5d-a462`, bookData);
   }
 
   // DELETE book by ID
   deleteBook(id: number | string): Observable<any> {
-    // return this.http.delete(`${this.apiUrl}/${id}`);
-    return this.http.delete(`https://dummyjson.com/c/dad4-58b5-4339-ae33`);
+    const token = localStorage.getItem('accessToken'); // or however your app stores JWT
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    return this.http.delete(`${this.apiUrl}/books/delete/${id}`, { headers, observe: 'response' });
   }
 
   // BULK upload
@@ -66,7 +83,9 @@ export class BookService {
     const formData = new FormData();
     formData.append('file', file);
     
-    return this.http.post(`https://dummyjson.com/c/2316-ec07-4908-a71c`, formData);
+    return this.http.post(`${this.apiUrl}/books/bulk-upload`, formData, {
+      headers: this.getHeaders()
+    });
   }
 
 
@@ -74,54 +93,62 @@ export class BookService {
   // SEARCH methods
   searchBooksByTitle(title: string): Observable<any> {
     return this.http.get(
-      // `${this.apiUrl}/search?title=${encodeURIComponent(title)}`
-      `https://dummyjson.com/c/ee13-926c-484d-8fa9`
+      `${this.apiUrl}/books/search?title=${encodeURIComponent(title)}`
+      // `https://dummyjson.com/c/ee13-926c-484d-8fa9`
     );
   }
 
   searchBooksByAuthor(author: string): Observable<any> {
     return this.http.get(
-      // `${this.apiUrl}/search?author=${encodeURIComponent(author)}`
-      `https://dummyjson.com/c/ee13-926c-484d-8fa9`
+      `${this.apiUrl}/books/search?author=${encodeURIComponent(author)}`
+      // `https://dummyjson.com/c/ee13-926c-484d-8fa9`
     );
   }
 
   searchBooksByIsbn(isbn: string): Observable<any> {
     return this.http.get(
-      // `${this.apiUrl}/search?isbn=${encodeURIComponent(isbn)}`
-      `https://dummyjson.com/c/ee13-926c-484d-8fa9`
+      `${this.apiUrl}/books/search?isbn=${encodeURIComponent(isbn)}`
+      // `https://dummyjson.com/c/ee13-926c-484d-8fa9`
     );
   }
 
   // GET all categories
   getAllCategories(): Observable<any> {
-    // return this.http.get(`${this.apiUrl}/get-all-categories`);
-    return this.http.get(`https://dummyjson.com/c/eff1-4df4-47b8-9f10`);
+    return this.http.get(`${this.apiUrl}/categories/get-all`);
+    // return this.http.get(`https://dummyjson.com/c/eff1-4df4-47b8-9f10`);
   }
 
   // Get low stock books
-  getLowStockBooks(threshold: number) {
-  // return this.http.get<any[]>(`/api/books/low-stock?threshold=${threshold}`);
-  return this.http.get<any[]>(`https://dummyjson.com/c/ee13-926c-484d-8fa9`);
+  getLowStockBooks() {
+  return this.http.get<any[]>(`${this.apiUrl}/books/get/low-stock`, {
+      headers: this.getHeaders()
+    });
+  // return this.http.get<any[]>(`https://dummyjson.com/c/ee13-926c-484d-8fa9`);
 }
 
 // get review of a particular book
 getReviewsUsingBookId(id: number | string) {
-  // return this.http.get<any[]>(`reviews/get/${id}`);
-  return this.http.get<any[]>(`https://dummyjson.com/c/0705-4faa-4ed0-abdb`);
+  return this.http.get<any[]>(`${this.apiUrl}/reviews/get/${id}`);
+  // return this.http.get<any[]>(`https://dummyjson.com/c/0705-4faa-4ed0-abdb`);
 }
 
   // POST add a new review
   addReview(reviewData: any, id: string): Observable<any> {
-    // return this.http.post(`reviews/add/${id}`, bookData);
-    return this.http.post(`https://dummyjson.com/c/0305-ed6c-4b8b-aaad`, reviewData);
+    return this.http.post(`${this.apiUrl}/reviews/add/${id}`, reviewData, {
+      headers: this.getHeaders()
+    });
+    // return this.http.post(`https://dummyjson.com/c/0305-ed6c-4b8b-aaad`, reviewData);
   }
 
   // delete review for a particular book
-  deleteReview(id: string): Observable<any> {
-    // return this.http.post(`reviews/delete/${id}`);
-    return this.http.delete(`https://dummyjson.com/c/c15e-106c-449b-8550`);
-  }
+  deleteReview(id: number): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/reviews/delete/${id}`, {
+    headers: this.getHeaders(),
+    observe: 'response',
+    responseType: 'text' as 'json'   // ✅ trick: force text but keep typing happy
+  });
+}
+
 
 }
 

@@ -3,8 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { BookService } from '../../../services/book';
-import Swal from 'sweetalert2';
 import { CartService } from '../../../services/cart';
+import { Auth } from '../../../services/auth';
+import Swal from 'sweetalert2';
 
 interface Review {
   id: number;
@@ -12,7 +13,7 @@ interface Review {
   name: string;
   rating: number;
   date: string;
-  comment: string;
+  comment: string | null;
 }
 
 @Component({
@@ -25,18 +26,18 @@ export class BookDetail implements OnInit {
   id!: string;
   book: any;
   reviews: Review[] = [];
-  user: any;
+  user: any = null;
   newRating: number = 5;
   newComment: string = '';
   error: string = '';
   success: string = '';
-
-  quantity: number = 1; // ✅ default quantity
+  quantity: number = 1;
 
   constructor(
     private route: ActivatedRoute,
     private bookService: BookService,
-    private cartService: CartService
+    private cartService: CartService,
+    private auth: Auth
   ) {}
 
   ngOnInit(): void {
@@ -44,12 +45,10 @@ export class BookDetail implements OnInit {
     this.loadBook();
     this.loadReviews();
 
-    // Simulated logged-in user
-    this.user = {
-      email: 'sovan@bookstore.com', // from JWT
-      name: 'Sovan Roy',
-      orderHistory: [2, 3, 4, 12],
-    };
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      this.user = JSON.parse(storedUser);
+    }
 
     window.scrollTo(0, 0);
   }
@@ -64,9 +63,6 @@ export class BookDetail implements OnInit {
     this.bookService.getBookById(this.id).subscribe({
       next: (data) => {
         this.book = data;
-        console.log(data)
-        console.log('📘 Book ID:', this.book.id);
-        console.log('🛒 User orderHistory:', this.user?.orderHistory);
         Swal.close();
       },
       error: (err) => {
@@ -81,7 +77,7 @@ export class BookDetail implements OnInit {
       next: (data: any[]) => {
         this.reviews = data.map((r) => ({
           id: r.reviewId,
-          userEmail: r.user?.email, // ✅ store email
+          userEmail: r.user?.email,
           name: r.user?.name || 'Anonymous',
           rating: r.rating,
           date: new Date(r.reviewDate).toISOString().slice(0, 10),
@@ -89,7 +85,8 @@ export class BookDetail implements OnInit {
         }));
       },
       error: (err) => {
-        Swal.fire('Error!', 'Failed to load reviews', 'error');
+        const message = err.error?.message || 'Failed to load reviews';
+        Swal.fire('Error!', message, 'error');
         console.error('Review load error:', err);
       },
     });
@@ -106,8 +103,8 @@ export class BookDetail implements OnInit {
     this.error = '';
     this.success = '';
 
-    if (!this.user.orderHistory.includes(this.book.id)) {
-      this.error = 'You can only review books you have purchased.';
+    if (!this.user || !this.auth.isLoggedIn()) {
+      this.error = 'You must be logged in to leave a review.';
       return;
     }
 
@@ -126,75 +123,62 @@ export class BookDetail implements OnInit {
       return;
     }
 
-    // ✅ Frontend Review Object (for UI)
-    const newReview: Review = {
-      id: this.reviews.length + 1,
-      userEmail: this.user.email,
-      name: this.user.name,
+    const payload = {
       rating: this.newRating,
-      date: new Date().toISOString().slice(0, 10),
       comment: this.newComment.trim(),
     };
 
-    // Prepend to UI
-    this.reviews = [newReview, ...this.reviews];
-
-    // ✅ API Payload (as backend expects)
-    const payload = {
-      rating: this.newRating,
-      coment: this.newComment.trim(), // spelling matches backend
-    };
-
-    // Call API
-    this.bookService.addReview(payload, this.book.id).subscribe({
+    this.bookService.addReview(payload, this.id).subscribe({
       next: () => {
         Swal.fire('Success!', 'Your review has been added.', 'success');
         this.newComment = '';
         this.newRating = 5;
+        this.loadReviews(); // ✅ Reload reviews from backend
       },
       error: () => Swal.fire('Error!', 'Failed to save review', 'error'),
     });
   }
 
-  deleteReview(review: Review) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you want to delete your review?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Call API to delete review
-        this.bookService.deleteReview(this.id).subscribe({
-          next: () => {
-            this.reviews = this.reviews.filter((r) => r.id !== review.id);
+  deleteReview(reviewId: number) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to delete your review?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.bookService.deleteReview(reviewId).subscribe({
+        next: (response) => {
+          if (!response || response.status === 200 || response.status === 204) {
+            this.reviews = this.reviews.filter((r) => r.id !== reviewId);
             Swal.fire('Deleted!', 'Your review has been deleted.', 'success');
-          },
-          error: () => {
-            Swal.fire('Error!', 'Failed to delete review.', 'error');
-          },
-        });
-      }
-    });
-  }
+          }
+        },
+        error: (err) => {
+          console.error('Delete review failed', err);
+          Swal.fire('Error!', 'Failed to delete review.', 'error');
+        },
+      });
+    }
+  });
+}
+
 
   hasUserReviewed(): boolean {
-    return this.reviews.some((r) => r.userEmail === this.user.email);
+    return this.reviews.some((r) => r.userEmail === this.user?.email);
   }
 
-  // ✅ Add to cart function
   handleAddToCart() {
     if (!this.book) return;
-
 
     if (this.quantity < 1 || this.quantity > this.book.stockQuantity) {
       Swal.fire('Error!', 'Please enter a valid quantity.', 'error');
       return;
     }
 
-    this.cartService.addToCart(this.book.id, this.quantity).subscribe({
+    this.cartService.addToCart(this.id, this.quantity).subscribe({
       next: () => {
         Swal.fire(
           'Added!',

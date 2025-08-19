@@ -3,14 +3,15 @@ import { BookControls } from '../../../shared/book-controls/book-controls';
 import { CommonModule } from '@angular/common';
 import { BookService } from '../../../services/book';
 import Swal from 'sweetalert2';
+import { RouterModule } from '@angular/router';
 
 export interface Book {
-  id: number;
+  bookId: number;
   title: string;
   author: string;
   price: number;
   isbn: string;
-  publishDate: string;
+  publishedDate: string;
   categoryName: string;
   stockQuantity: number;
   description: string;
@@ -18,7 +19,7 @@ export interface Book {
 }
 
 @Component({
-  imports: [BookControls, CommonModule],
+  imports: [BookControls, CommonModule, RouterModule],
   selector: 'app-all-books',
   templateUrl: './all-books.html',
   styleUrl: './all-books.css',
@@ -101,16 +102,15 @@ export class AllBooks implements OnInit {
     } else if (this.sortOption === 'date-asc') {
       filtered.sort(
         (a, b) =>
-          new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime()
+          new Date(a.publishedDate).getTime() - new Date(b.publishedDate).getTime()
       );
     } else if (this.sortOption === 'date-desc') {
       filtered.sort(
         (a, b) =>
-          new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+          new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()
       );
     }
 
     this.books = filtered;
   }
 }
-

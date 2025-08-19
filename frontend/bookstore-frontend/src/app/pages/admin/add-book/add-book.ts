@@ -6,17 +6,19 @@ import Swal from 'sweetalert2';
 import { BookService } from '../../../services/book';
 
 interface Book {
-  id: string;
   title: string;
   author: string;
   price: number;
   isbn: string;
-  publishDate: string;
-  categoryName: string;
+  publishedDate: string;
+  category: {
+    name: string;
+  };
   description: string;
   coverImageUrl: string;
   stockQuantity: number;
 }
+
 
 @Component({
   selector: 'app-edit-book',
@@ -26,18 +28,20 @@ interface Book {
   styleUrl: './add-book.css',
 })
 export class AddBook implements OnInit {
-  book: Book = {
-    id: '',
-    title: '',
-    author: '',
-    price: 0,
-    isbn: '',
-    publishDate: '',
-    categoryName: '',
-    description: '',
-    coverImageUrl: '',
-    stockQuantity: 0
-  };
+book: Book = {
+  title: '',
+  author: '',
+  price: 0,
+  isbn: '',
+  publishedDate: '',
+  category: {
+    name: ''
+  },
+  description: '',
+  coverImageUrl: '',
+  stockQuantity: 0
+};
+
 
   constructor(private router: Router, private bookService: BookService) {}
 
@@ -45,25 +49,38 @@ export class AddBook implements OnInit {
     // Nothing to load for add mode
   }
 
-  private isFormValid(): boolean {
-    return (
-      this.book.title.trim() !== '' &&
-      this.book.author.trim() !== '' &&
-      this.book.price > 0 &&
-      this.book.isbn.trim() !== '' &&
-      this.book.publishDate.trim() !== '' &&
-      this.book.categoryName.trim() !== '' &&
-      this.book.description.trim() !== '' &&
-      this.book.coverImageUrl.trim() !== '' &&
-      this.book.stockQuantity >0
-    );
-  }
+private isFormValid(): boolean {
+  return (
+    this.book.title.trim() !== '' &&
+    this.book.author.trim() !== '' &&
+    this.book.price > 0 &&
+    this.book.isbn.trim() !== '' &&
+    this.book.publishedDate !== '' &&
+    this.book.category.name.trim() !== '' &&  
+    this.book.description.trim() !== '' &&
+    this.book.coverImageUrl.trim() !== '' &&
+    this.book.stockQuantity > 0
+  );
+}
+
 
   handleSave(): void {
     if (!this.isFormValid()) {
       Swal.fire('Error', 'Please fill in all fields before saving.', 'error');
       return;
     }
+
+    // Convert to dd-MM-yyyy format
+  const dateObj = new Date(this.book.publishedDate);
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  const formattedDate = `${day}-${month}-${year}`;
+
+    const formattedBook = {
+    ...this.book,
+    publishedDate: formattedDate
+  };
 
     Swal.fire({
       title: 'Save Changes?',
@@ -76,7 +93,7 @@ export class AddBook implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         // add book api call
-        this.bookService.addBook(this.book).subscribe({
+        this.bookService.addBook(formattedBook).subscribe({
           next: () => {
             Swal.fire('Added!', 'The new book has been saved.', 'success');
             this.router.navigate(['/admin']);

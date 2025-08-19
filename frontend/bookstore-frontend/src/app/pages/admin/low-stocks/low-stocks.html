@@ -16,7 +16,7 @@
                 ? (book.title | slice : 0 : 17) + "..."
                 : book.title
             }}</h3>
-        <p><strong>ID:</strong> {{ book.id }}</p>
+        <p><strong>ID:</strong> {{ book.bookId }}</p>
         <p>by {{ book.author }}</p>
         <p class="stock">Stock: <span>{{ book.stockQuantity }}</span></p>
       </div>

@@ -3,19 +3,19 @@ import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { BookService } from '../../../services/book'; 
+import { BookService } from '../../../services/book';
 import { UserService } from '../../../services/user';
 import { Auth } from '../../../services/auth';
 import { OrderService } from '../../../services/order';
 import { FormsModule } from '@angular/forms';
 
 export interface Book {
-  id: number;
+  bookId: number;
   title: string;
   author: string;
   price: number;
   isbn: string;
-  publishDate: string;
+  publishedDate: string;
   categoryName: string;
   stockQuantity: number;
   description: string;
@@ -33,26 +33,33 @@ export interface User {
 
 @Component({
   selector: 'app-home',
-  imports: [CommonModule, RouterModule,FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
 })
 export class Home {
-  onStockBlur(
-    arg0: string,
-    _t30: HTMLInputElement,
-    _t17: {
-      id: number;
-      title: string;
-      author: string;
-      price: number;
-      image: string;
-      rating: number;
-    }
-  ) {
-    throw new Error('Method not implemented.');
-  }
+  books: Book[] = [];
+  orders: any[] = [];
+  recommendedBooks: Book[] = [];
+  trendingBooks: Book[] = [];
+  lowStockBooks: Book[] = [];
+  users: User[] = [];
+  searchResults: any[] = [];
+  stockThreshold = 5;
+  loading = false;
 
+  topRatedBooks: any[] = [];
+  mostPurchasedBooks: any[] = [];
+
+  constructor(
+    private router: Router,
+    private bookService: BookService,
+    private userService: UserService,
+    private authService: Auth,
+    private orderService: OrderService
+  ) {}
+
+  // ✅ Getters
   get isLoggedIn(): boolean {
     return this.authService.isLoggedIn();
   }
@@ -61,32 +68,11 @@ export class Home {
     return this.authService.getUserRole();
   }
 
-
-  books: Book[] = [];
-  orders: any[] = []; // store all orders
-
   get isAdmin(): boolean {
-  return this.authService.getUserRole() === 'ADMIN';
-}
+    return this.authService.getUserRole() === 'ADMIN';
+  }
 
-
-
-  lowStockBooks: Book[] = [];
-  stockThreshold = 5; // you can change this to any limit
-
-  users: User[] = [];   // now comes from API
-
-  searchResults: any[] = [];
-
- constructor(
-  private router: Router,
-  private bookService: BookService,
-  private userService: UserService,
-  private authService: Auth,
-  private orderService: OrderService   // 👈 add this
-) {}
-
-
+  // ✅ Central confirm helper
   private async confirmAction(
     title: string,
     text: string,
@@ -107,14 +93,12 @@ export class Home {
     }
   }
 
-  loading = false;
-
-  // get all books api
+  // ✅ Load books (with admin/user distinction)
   loadBooks() {
     this.loading = true;
     this.bookService.getAllBooks().subscribe({
       next: (data) => {
-        this.books = data;
+        this.books = this.isAdmin ? data : data.slice(0, 4);
         this.loading = false;
       },
       error: () => {
@@ -124,27 +108,33 @@ export class Home {
     });
   }
 
-  // delete book by id api
+  // ✅ Delete book
   deleteBook(bookId: number, bookTitle: string) {
-    this.confirmAction(
-      'Delete Book?',
-      `Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`,
-      'Yes, delete it!',
-      () => {
-        this.bookService.deleteBook(bookId).subscribe({
-          next: (response) => {
+  this.confirmAction(
+    'Delete Book?',
+    `Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`,
+    'Yes, delete it!',
+    () => {
+      this.bookService.deleteBook(bookId).subscribe({
+        next: (response) => {
+          if (response.status === 200 || response.status === 204) {
             Swal.fire('Deleted!', 'The book has been deleted.', 'success');
-            this.loadBooks(); // Refresh book list after deletion
-          },
-          error: (error) => {
-            console.error('Delete API Error:', error); // <-- Log error details
-            Swal.fire('Error!', 'Failed to delete book.', 'error');
-          },
-        });
-      }
-    );
-  }
+            this.loadBooks();
+          } else {
+            Swal.fire('Error!', 'Unexpected response from server.', 'error');
+          }
+        },
+        error: (error) => {
+          console.error('Delete API Error:', error);
+          Swal.fire('Error!', 'Failed to delete book.', 'error');
+        },
+      });
+    }
+  );
+}
 
+
+  // ✅ Navigation
   addBook() {
     this.router.navigate([`/admin/add-book`]);
   }
@@ -153,29 +143,25 @@ export class Home {
     this.router.navigate([`/admin/edit-book/${bookId}`]);
   }
 
-  // bulk upload api
+  // ✅ Bulk upload
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) {
-      return;
-    }
+    if (!input.files?.length) return;
 
     const file = input.files[0];
 
-    // Confirm before upload
     this.confirmAction(
       'Bulk Upload Books?',
       `You are about to upload: ${file.name}. Continue?`,
       'Yes, upload!',
       () => {
         this.bookService.bulkUploadBooks(file).subscribe({
-          next: (response) => {
-            console.log('Bulk Upload Response:', response); // <-- See backend response
+          next: () => {
             Swal.fire('Success!', 'Books uploaded successfully.', 'success');
-            this.loadBooks(); // Refresh list
+            this.loadBooks();
           },
           error: (error) => {
-            console.error('Bulk Upload Error:', error); // <-- Log full error
+            console.error('Bulk Upload Error:', error);
             Swal.fire('Error!', 'Failed to upload books.', 'error');
           },
         });
@@ -183,12 +169,12 @@ export class Home {
     );
   }
 
-  // low stock api
+  // ✅ Low stock books
   loadLowStockBooks() {
-    this.bookService.getLowStockBooks(this.stockThreshold).subscribe({
+    this.bookService.getLowStockBooks().subscribe({
       next: (data) => {
+        console.log(data)
         this.lowStockBooks = data;
-
         if (this.isAdmin && this.lowStockBooks.length > 0) {
           setTimeout(() => {
             Swal.fire({
@@ -198,16 +184,14 @@ export class Home {
                 .join('<br>'),
               icon: 'warning',
             });
-          }, 3000); // 3 seconds delay
+          }, 3000);
         }
       },
-      error: () => {
-        console.error('Failed to fetch low stock books');
-      },
+      error: () => console.error('Failed to fetch low stock books'),
     });
   }
 
-  // get all users for admin
+  // ✅ Users
   loadUsers() {
     this.loading = true;
     this.userService.getAllUsers().subscribe({
@@ -223,29 +207,90 @@ export class Home {
     });
   }
 
-  // search api call
-  ngOnInit() {
-    this.loadBooks();
-    this.loadUsers();
-    this.loadOrders();   
-    // Fetch books from API when home page loads
+  // ✅ Orders
+  loadOrders() {
     this.loading = true;
-    this.bookService.getAllBooks().subscribe({
+    this.orderService.getOrdersAdmin().subscribe({
       next: (data) => {
-        if (!this.isAdmin) this.books = data.slice(0, 4);
-        else this.books = data;
+        this.orders = data;
         this.loading = false;
       },
-      error: () => {
-        Swal.fire('Error!', 'Failed to fetch books.', 'error');
+      error: (err) => {
         this.loading = false;
+        Swal.fire('Error!', 'Failed to fetch orders.', 'error');
+        console.error('Orders fetch error:', err);
       },
     });
+  }
 
+  updateStatus(orderId: number, newStatus: string) {
+    this.orderService.updateOrderStatus(orderId, newStatus).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Updated!',
+          text: `Order #${orderId} marked as ${newStatus}.`,
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      },
+      error: () => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Could not update order status. Please try again.',
+        });
+      },
+    });
+  }
+
+  // fetch recommended books
+  loadRecommendedBooks() {
+    this.bookService.getRecommendedBooks().subscribe({
+      next: (data) => {
+        this.recommendedBooks = data;
+      },
+      error: (err) => {
+        console.error('Failed to fetch recommended books', err);
+      },
+    });
+  }
+ 
+  // fetch trending books
+  loadTrendingBooks() {
+    this.bookService.getTrendingBooks().subscribe({
+      next: (res) => {
+        this.topRatedBooks = res.topRated || [];
+        this.mostPurchasedBooks = res.mostPurchased || [];
+      },
+      error: (err) => {
+        console.error('Failed to fetch trending books', err);
+      },
+    });
+  }
+
+  // ✅ ngOnInit
+  ngOnInit() {
+    this.loadBooks();
+    if(this.isAdmin)
+      this.loadUsers();
+
+     if(this.isAdmin)
+      this.loadOrders();
+
+    if(this.isAdmin)
+      this.loadLowStockBooks();
+
+    if(!this.isAdmin)
+    this.loadRecommendedBooks();
+  
+  if(!this.isAdmin)
+    this.loadTrendingBooks();
+
+    // Search handler
     this.bookService.searchEvent$.subscribe((event) => {
       if (!event) return;
-
-      this.loading = true; // <-- START loading before making the API call
+      this.loading = true;
 
       let apiCall;
       switch (event.type) {
@@ -264,7 +309,7 @@ export class Home {
         apiCall.subscribe({
           next: (data) => {
             this.searchResults = data;
-            this.loading = false; // <-- STOP loading when data arrives
+            this.loading = false;
           },
           error: () => {
             Swal.fire('Error!', 'Failed to fetch search results.', 'error');
@@ -275,45 +320,9 @@ export class Home {
         this.loading = false;
       }
     });
-
-    this.loadLowStockBooks();
   }
-
-  // get all orders for admin
-loadOrders() {
-  this.loading = true;
-  this.orderService.getOrdersAdmin().subscribe({
-    next: (data) => {
-      this.orders = data;  // your API already returns array of orders
-      this.loading = false;
-    },
-    error: (err) => {
-      this.loading = false;
-      Swal.fire('Error!', 'Failed to fetch orders.', 'error');
-      console.error('Orders fetch error:', err);
-    },
-  });
 }
 
-updateStatus(orderId: number, newStatus: string) {
-    this.orderService.updateOrderStatus(orderId, newStatus).subscribe({
-      next: () => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Updated!',
-          text: `Order #${orderId} marked as ${newStatus}.`,
-          timer: 2000,
-          showConfirmButton: false
-        });
-      },
-      error: () => {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Could not update order status. Please try again.',
-        });
-      }
-    });
-  }
 
-}
+
+

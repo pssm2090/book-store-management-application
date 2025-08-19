@@ -133,9 +133,28 @@
   vertical-align: middle;
 }
 
-.table thead th {
+/* Sticky header + fixed height */
+.table thead {
   background: #f3f4f6;
   font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* Wrap body inside fixed height */
+.table tbody {
+  display: block;
+  max-height: 400px; /* adjust fixed height as you like */
+  overflow-y: auto;
+  width: 100%;
+}
+
+.table thead,
+.table tbody tr {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
 }
 
 .admin-actions {

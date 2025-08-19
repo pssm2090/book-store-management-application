@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 @Entity
 @Table(name = "return_requests")
 public class ReturnRequest {
@@ -13,10 +16,12 @@ public class ReturnRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long returnRequestId;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

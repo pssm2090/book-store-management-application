@@ -43,12 +43,8 @@
     <div class="review-form">
       <h3>Add Your Review</h3>
 
-      <p *ngIf="!user.orderHistory.includes(book?.id)" class="error">
-        You must purchase this book to leave a review.
-      </p>
 
       <form
-        *ngIf="user.orderHistory.includes(book?.id)"
         (ngSubmit)="handleSubmitReview()"
       >
         <label>
@@ -81,23 +77,31 @@
     </div>
 
     <!-- Existing Reviews -->
-    <!-- Existing Reviews -->
-    <div *ngFor="let review of reviews" class="review">
-      <p class="review-header">
-        {{ review.name }} – {{ review.rating }}
-        <span class="star">★</span>
-      </p>
-      <p class="review-date">{{ review.date }}</p>
-      <p>{{ review.comment }}</p>
+   <div *ngFor="let review of reviews" class="review">
+  <p class="review-header">
+    <strong>{{ review.name }}</strong> – 
+    {{ review.rating }} <span class="star">★</span>
+  </p>
 
-      <!-- ✅ Show delete button only if review belongs to logged-in user -->
-      <button
-        *ngIf="review.userEmail === user.email"
-        (click)="deleteReview(review)"
-        class="delete-btn"
-      >
-        Delete
-      </button>
-    </div>
+  <p class="review-date">
+    {{ review.date }}
+  </p>
+
+  <!-- ✅ Show comment only if it exists -->
+  <p *ngIf="review.comment; else noComment">{{ review.comment }}</p>
+  <ng-template #noComment>
+    <p class="no-comment">No comment provided.</p>
+  </ng-template>
+
+  <!-- ✅ Delete button by review.id -->
+  <button
+    *ngIf="review.userEmail === user?.email"
+    (click)="deleteReview(review.id)"
+    class="delete-btn"
+  >
+    Delete
+  </button>
+</div>
+
   </div>
 </div>
